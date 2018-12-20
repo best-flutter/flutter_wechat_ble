@@ -102,29 +102,29 @@
   }else if([@"openBluetoothAdapter" isEqualToString:method]){
       [self openBluetoothAdapter:call.arguments callback:result];
   }else if([@"closeBluetoothAdapter" isEqualToString:method]){
-      [self openBluetoothAdapter:call.arguments callback:result];
+      [self closeBluetoothAdapter:call.arguments callback:result];
   }else if([@"startBluetoothDevicesDiscovery" isEqualToString:method]){
-      [self openBluetoothAdapter:call.arguments callback:result];
+      [self startBluetoothDevicesDiscovery:call.arguments callback:result];
   }else if([@"stopBluetoothDevicesDiscovery" isEqualToString:method]){
-      [self openBluetoothAdapter:call.arguments callback:result];
+      [self stopBluetoothDevicesDiscovery:call.arguments callback:result];
   }else if([@"createBLEConnection" isEqualToString:method]){
-      [self openBluetoothAdapter:call.arguments callback:result];
+      [self createBLEConnection:call.arguments callback:result];
   }else if([@"closeBLEConnection" isEqualToString:method]){
-      [self openBluetoothAdapter:call.arguments callback:result];
+      [self closeBLEConnection:call.arguments callback:result];
   }else if([@"getBluetoothDevices" isEqualToString:method]){
-      [self openBluetoothAdapter:call.arguments callback:result];
+      [self getBluetoothDevices:call.arguments callback:result];
   }else if([@"getConnectedBluetoothDevices" isEqualToString:method]){
-      [self openBluetoothAdapter:call.arguments callback:result];
+      [self getConnectedBluetoothDevices:call.arguments callback:result];
   } else if([@"getBLEDeviceServices" isEqualToString:method]){
-      [self openBluetoothAdapter:call.arguments callback:result];
+      [self getBLEDeviceServices:call.arguments callback:result];
   } else if([@"getBLEDeviceCharacteristics" isEqualToString:method]){
-      [self openBluetoothAdapter:call.arguments callback:result];
+      [self getBLEDeviceCharacteristics:call.arguments callback:result];
   } else if([@"readBLECharacteristicValue" isEqualToString:method]){
-      [self openBluetoothAdapter:call.arguments callback:result];
+      [self readBLECharacteristicValue:call.arguments callback:result];
   } else if([@"writeBLECharacteristicValue" isEqualToString:method]){
-      [self openBluetoothAdapter:call.arguments callback:result];
+      [self writeBLECharacteristicValue:call.arguments callback:result];
   } else if([@"notifyBLECharacteristicValueChange" isEqualToString:method]){
-      [self openBluetoothAdapter:call.arguments callback:result];
+      [self notifyBLECharacteristicValueChange:call.arguments callback:result];
   } else {
     result(FlutterMethodNotImplemented);
   }
@@ -377,13 +377,11 @@ return; \
             for(CBCharacteristic* characteristic in service.characteristics){
                 [result addObject:@{
                                     @"uuid":characteristic.UUID.UUIDString,
-                                    @"properties":@{
-                                            @"read" :[NSNumber numberWithBool:( characteristic.properties & CBCharacteristicPropertyRead)],
-                                            @"write" :[NSNumber numberWithBool: (characteristic.properties & CBCharacteristicPropertyWrite) || (characteristic.properties & CBCharacteristicPropertyWriteWithoutResponse)   ],
-                                            @"notify":[NSNumber numberWithBool:( characteristic.properties & CBCharacteristicPropertyNotify)],
-                                            @"indicate":[NSNumber numberWithBool:( characteristic.properties & CBCharacteristicPropertyIndicate)],
-                                            
-                                            }
+                                    @"read" :[NSNumber numberWithBool:( characteristic.properties & CBCharacteristicPropertyRead)],
+                                    @"write" :[NSNumber numberWithBool: (characteristic.properties & CBCharacteristicPropertyWrite) || (characteristic.properties & CBCharacteristicPropertyWriteWithoutResponse)   ],
+                                    @"notify":[NSNumber numberWithBool:( characteristic.properties & CBCharacteristicPropertyNotify)],
+                                    @"indicate":[NSNumber numberWithBool:( characteristic.properties & CBCharacteristicPropertyIndicate)],
+                                    
                                     }];
             }
             

@@ -87,7 +87,7 @@
   }
   
   CBPeripheral* device = [_devices objectForKey:deviceId];
-  if(!deviceId){
+  if(!device){
     return BluetoothAdapterResultDeviceNotFound;
   }
   
@@ -103,11 +103,14 @@
   }
   
   CBPeripheral* device = [_devices objectForKey:deviceId];
-  if(!deviceId){
+  if(!device){
     return BluetoothAdapterResultOk;
   }
   [_manager cancelPeripheralConnection:device];
   
+    [_devices removeObjectForKey:deviceId];
+    [_connectedDevices removeObject:deviceId];
+    
   return BluetoothAdapterResultOk;
   
   
