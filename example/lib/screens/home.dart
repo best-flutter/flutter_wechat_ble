@@ -108,8 +108,7 @@ class HomeState extends State<Home> {
     super.initState();
   }
 
-  void valueChangeCallback(BleDevice device, BleService service,
-      BleCharacteristic characteristic, String value) {
+  void valueChangeCallback(BleValue value) {
     //LoggerModel.getInstance().add(value);
     BleModel.logger.add("Value changed: $value");
   }

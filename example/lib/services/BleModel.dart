@@ -61,8 +61,8 @@ class BleModel {
       return false;
     }
     try {
-      await FlutterWechatBle.startBluetoothDevicesDiscovery(
-          options: new DiscoveryOptions(success: success));
+      FlutterWechatBle.onBluetoothDeviceFound(success);
+      await FlutterWechatBle.startBluetoothDevicesDiscovery();
       scanning = true;
     } catch (e) {
       await this.shutdown();
@@ -72,11 +72,11 @@ class BleModel {
   }
 
   Future connect(BleDevice device) async {
-    return FlutterWechatBle.createBLEConnection(device: device);
+    return FlutterWechatBle.createBLEConnection(deviceId: device.deviceId);
   }
 
   Future close(BleDevice device) async {
-    return FlutterWechatBle.closeBLEConnection(device: device);
+    return FlutterWechatBle.closeBLEConnection(deviceId: device.deviceId);
   }
 
   Future<List<BleService>> getServices(BleDevice device) async {
@@ -96,9 +96,9 @@ class BleModel {
   Future changeNotifyState(BleDevice device, BleService service,
       BleCharacteristic characteristic, bool notify) async {
     return FlutterWechatBle.notifyBLECharacteristicValueChange(
-        device: device,
-        service: service,
-        characteristic: characteristic,
+        deviceId: device.deviceId,
+        serviceId: service.uuid,
+        characteristicId: characteristic.uuid,
         state: notify);
   }
 
@@ -109,9 +109,9 @@ class BleModel {
     }
 
     return FlutterWechatBle.writeBLECharacteristicValue(
-        device: device,
-        service: service,
-        characteristic: characteristic,
+        deviceId: device.deviceId,
+        serviceId: service.uuid,
+        characteristicId: characteristic.uuid,
         value: value);
   }
 
