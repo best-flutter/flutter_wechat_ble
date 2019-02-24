@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_wechat_ble/utils.dart';
-import 'package:meta/meta.dart';
 
 /**
  * #define NOT_INIT @"10000"
@@ -78,7 +77,7 @@ class BleService {
 
   BleCharacteristic getCharacteristic(String characteristicId) {
     return characteristics?.firstWhere((BleCharacteristic characteristic) =>
-        characteristicId == characteristic.uuid);
+    characteristicId == characteristic.uuid);
   }
 }
 
@@ -141,7 +140,7 @@ typedef void ValueChangeCallback(BleValue value);
 class FlutterWechatBle {
   static const String code = "code";
   static const MethodChannel _channel =
-      const MethodChannel('flutter_wechat_ble');
+  const MethodChannel('flutter_wechat_ble');
 
   static bool allowDuplicatesKey;
 
@@ -213,8 +212,8 @@ class FlutterWechatBle {
 
   static Future startBluetoothDevicesDiscovery(
       {bool allowDuplicatesKey = false,
-      List<String> services = const <String>[],
-      int interval = 0}) async {
+        List<String> services = const <String>[],
+        int interval = 0}) async {
     FlutterWechatBle.allowDuplicatesKey = allowDuplicatesKey;
     FlutterWechatBle.services = services;
     FlutterWechatBle.interval = interval;
@@ -285,7 +284,7 @@ class FlutterWechatBle {
     //services
     List<BleService> services = rawServices
         .map((data) =>
-            new BleService(uuid: data['uuid'], isPrimary: data['isPrimary']))
+    new BleService(uuid: data['uuid'], isPrimary: data['isPrimary']))
         .toList();
     device.setServices(services);
 
@@ -312,12 +311,12 @@ class FlutterWechatBle {
     //services
     List<BleCharacteristic> characteristics = rawData
         .map((data) => new BleCharacteristic(
-              uuid: data['uuid'],
-              read: data['read'],
-              write: data['write'],
-              notify: data['notify'],
-              indicate: data['indicate'],
-            ))
+      uuid: data['uuid'],
+      read: data['read'],
+      write: data['write'],
+      notify: data['notify'],
+      indicate: data['indicate'],
+    ))
         .toList();
     service.setCharacteristic(characteristics);
 
@@ -334,11 +333,11 @@ class FlutterWechatBle {
 
   static Future writeBLECharacteristicValue(
       {String deviceId,
-      String serviceId,
-      String characteristicId,
+        String serviceId,
+        String characteristicId,
 
-      /// string or List<int>
-      dynamic value}) async {
+        /// string or List<int>
+        dynamic value}) async {
     assert(value!=null);
     assert(deviceId!=null);
     assert(serviceId!=null);
@@ -362,15 +361,15 @@ class FlutterWechatBle {
 
   static Future notifyBLECharacteristicValueChange(
       {String deviceId,
-      String serviceId,
-      String characteristicId,
-      bool state}) async {
+        String serviceId,
+        String characteristicId,
+        bool state}) async {
     assert(deviceId!=null);
     assert(serviceId!=null);
     assert(characteristicId!=null);
     assert(state!=null);
     var result =
-        await _channel.invokeMethod('notifyBLECharacteristicValueChange', {
+    await _channel.invokeMethod('notifyBLECharacteristicValueChange', {
       "deviceId": deviceId,
       "serviceId": serviceId,
       "characteristicId": characteristicId,

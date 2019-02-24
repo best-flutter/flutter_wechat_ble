@@ -15,8 +15,6 @@
   CBCentralManager *_manager;
   NSInteger _state;
   NSInteger _interval;
-  //上一次广播发现设备的时间
-  NSUInteger _lastBrodcastDiscoveryDevice;
   //设备列表
   NSMutableDictionary<NSString*,CBPeripheral*>* _devices;
   //连接上的设备
@@ -443,7 +441,6 @@
 
 -(void)reportDiscoveryDeviced:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *, id> *)advertisementData RSSI:(NSNumber *)RSSI{
   
-  _lastBrodcastDiscoveryDevice = [NSDate timeIntervalSinceReferenceDate];
   
   if(_discoveryDeviceCallback!=nil){
     _discoveryDeviceCallback(
