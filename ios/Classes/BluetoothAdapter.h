@@ -23,14 +23,14 @@ typedef void (^ReadValueCallback)(CBPeripheral*,CBCharacteristic*,NSError*) ;
 typedef void (^ConnectionStatusCallback)(CBPeripheral*,NSError*) ;
 
 typedef enum _BluetoothAdapterResult{
-  BluetoothAdapterResultOk,
-  BluetoothAdapterResultNotInit,
-  BluetoothAdapterResultDeviceNotFound,
-  BluetoothAdapterResultDeviceNotConnected,
-  BluetoothAdapterResultServiceNotFound,
-  BluetoothAdapterResultCharacteristicsNotFound,
-  BluetoothAdapterResultCharacteristicsPropertyNotSupport,   //不支持
-  
+    BluetoothAdapterResultOk,
+    BluetoothAdapterResultNotInit,
+    BluetoothAdapterResultDeviceNotFound,
+    BluetoothAdapterResultDeviceNotConnected,
+    BluetoothAdapterResultServiceNotFound,
+    BluetoothAdapterResultCharacteristicsNotFound,
+    BluetoothAdapterResultCharacteristicsPropertyNotSupport,   //不支持
+    
 }BluetoothAdapterResult;
 
 
@@ -99,7 +99,7 @@ typedef enum _BluetoothAdapterResult{
 
 /**
  获取已经连接的外设
-
+ 
  @return return value description
  */
 -(NSArray<NSString*>*)getConnectedDevices;
@@ -118,10 +118,10 @@ typedef enum _BluetoothAdapterResult{
 
 -(BluetoothAdapterResult)readValue:(NSString*)deviceId serviceId:(NSString*)serviceId characteristicId:(NSString*)characteristicId;
 /*
--(BOOL)write;
-
--(BOOL)read;
-*/
+ -(BOOL)write;
+ 
+ -(BOOL)read;
+ */
 
 
 @end

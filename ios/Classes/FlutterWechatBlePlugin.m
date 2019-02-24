@@ -2,6 +2,7 @@
 
 #import <CoreBluetooth/CoreBluetooth.h>
 #import "BluetoothAdapter.h"
+#import "Utils.h"
 
 /*
  0  ok  正常
@@ -80,12 +81,12 @@
             if(!error){
                 [__self.channel
                  invokeMethod:@"valueUpdate"
-               arguments:@{
-                            @"characteristicId":character.UUID.UUIDString,
-                            @"serviceId" : character.service.UUID.UUIDString,
-                            @"deviceId" : device.identifier.UUIDString,
-                            @"value" : [ FlutterWechatBlePlugin toString:character.value ]
-                            }];
+                 arguments:@{
+                     @"characteristicId":[Utils uuid:character.UUID],
+                     @"serviceId" :[Utils uuid:character.service.UUID],
+                     @"deviceId" : [Utils uuid:device.identifier],
+                     @"value" : [ FlutterWechatBlePlugin toString:character.value ]
+                 }];
             }
             
         };
@@ -266,7 +267,7 @@ return; \
     NSMutableArray* result = [[NSMutableArray alloc]init];
     for(CBPeripheral* device in devices){
         
-        [result addObject:@{@"name":device.name,@"deviceId":device.identifier.UUIDString}];
+         [result addObject:@{@"name":device.name,@"deviceId":[Utils uuid:device.identifier]}];
         
     }
     return result;
@@ -310,7 +311,7 @@ return; \
             NSMutableArray* result = [[NSMutableArray alloc]initWithCapacity:device.services.count];
             for(CBService* service in device.services){
                 [result addObject:@{
-                                    @"uuid": service.UUID.UUIDString,
+                                    @"uuid": [Utils uuid:service.UUID],
                                     @"isPrimary":[NSNumber numberWithBool: service.isPrimary]
                                     }];
             }
@@ -376,13 +377,14 @@ return; \
             NSMutableArray* result = [[NSMutableArray alloc]initWithCapacity:service.characteristics.count];
             for(CBCharacteristic* characteristic in service.characteristics){
                 [result addObject:@{
-                                    @"uuid":characteristic.UUID.UUIDString,
-                                    @"read" :[NSNumber numberWithBool:( characteristic.properties & CBCharacteristicPropertyRead)],
-                                    @"write" :[NSNumber numberWithBool: (characteristic.properties & CBCharacteristicPropertyWrite) || (characteristic.properties & CBCharacteristicPropertyWriteWithoutResponse)   ],
-                                    @"notify":[NSNumber numberWithBool:( characteristic.properties & CBCharacteristicPropertyNotify)],
-                                    @"indicate":[NSNumber numberWithBool:( characteristic.properties & CBCharacteristicPropertyIndicate)],
+                                    @"uuid":[Utils uuid:characteristic.UUID],
                                     
-                                    }];
+                                            @"read" :[NSNumber numberWithBool:( characteristic.properties & CBCharacteristicPropertyRead)],
+                                            @"write" :[NSNumber numberWithBool: (characteristic.properties & CBCharacteristicPropertyWrite) || (characteristic.properties & CBCharacteristicPropertyWriteWithoutResponse)   ],
+                                            @"notify":[NSNumber numberWithBool:( characteristic.properties & CBCharacteristicPropertyNotify)],
+                                            @"indicate":[NSNumber numberWithBool:( characteristic.properties & CBCharacteristicPropertyIndicate)],
+                                            
+                                            }];
             }
             
             callback(@{@"characteristics": result  });
