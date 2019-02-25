@@ -2,6 +2,13 @@
 
 ![](screen.png)
 
+<p align="center">
+    <a href="https://pub.dartlang.org/packages/flutter_wechat_ble">
+        <img src="https://img.shields.io/pub/v/flutter_wechat_ble.svg" alt="pub package" />
+    </a>
+    <a target="_blank" href="https://shang.qq.com/wpa/qunwpa?idkey=a71a2504cda4cc9ace3320f2dc588bdae928abc671e903463caeb71ec9302c2c"><img border="0" src="https://pub.idqqimg.com/wpa/images/group.png" alt="best-flutter" title="best-flutter"></a>
+</p>
+
 A ble library with wechat api style for flutter.
 
 微信api风格的蓝牙库

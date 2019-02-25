@@ -1,8 +1,8 @@
 name: flutter_wechat_ble
-description: A new flutter plugin project.
+description: Ble plugin for flutter, android & ios support.
 version: 0.0.1
-author:
-homepage:
+author: JZoom <jzoom8112@gmail.com>
+homepage: https://github.com/best-flutter/flutter_wechat_ble
 
 environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"
