@@ -35,10 +35,10 @@ class BleModel {
     return instance;
   }
 
-  void onConnectionStateChange(ConnectionStateChangeCallback callback){
-    FlutterWechatBle.onBLEConnectionStateChange((String deviceId,bool connected){
-
-      callback(deviceId,connected);
+  void onConnectionStateChange(ConnectionStateChangeCallback callback) {
+    FlutterWechatBle.onBLEConnectionStateChange(
+        (String deviceId, bool connected) {
+      callback(deviceId, connected);
     });
   }
 
@@ -90,8 +90,9 @@ class BleModel {
 
   Future<List<BleService>> getServices(BleDevice device) async {
     // 从缓存取出来,这里因为原生层面已经做了一次缓存，所以也可以直接调用
-    if(device.services==null){
-       device.services = await FlutterWechatBle.getBLEDeviceServices(deviceId: device.deviceId);
+    if (device.services == null) {
+      device.services = await FlutterWechatBle.getBLEDeviceServices(
+          deviceId: device.deviceId);
     }
     return device.services;
   }
@@ -102,21 +103,21 @@ class BleModel {
 
   Future<List<BleCharacteristic>> getCharacteristics(
       BleDevice device, BleService service) async {
-    if(service.characteristics==null){
-      service.characteristics = await FlutterWechatBle.getBLEDeviceCharacteristics(
-          deviceId: device.deviceId, serviceId: service.uuid);
+    if (service.characteristics == null) {
+      service.characteristics =
+          await FlutterWechatBle.getBLEDeviceCharacteristics(
+              deviceId: device.deviceId, serviceId: service.uuid);
     }
 
     return service.characteristics;
   }
 
-  Future<BleValue> readValue(BleDevice device, BleService service,
-      BleCharacteristic characteristic){
+  Future<BleValue> readValue(
+      BleDevice device, BleService service, BleCharacteristic characteristic) {
     return FlutterWechatBle.readBLECharacteristicValue(
-      deviceId: device.deviceId,
-      serviceId: service.uuid,
-      characteristicId: characteristic.uuid
-    );
+        deviceId: device.deviceId,
+        serviceId: service.uuid,
+        characteristicId: characteristic.uuid);
   }
 
   Future changeNotifyState(BleDevice device, BleService service,
@@ -130,7 +131,6 @@ class BleModel {
 
   Future writeValue(BleDevice device, BleService service,
       BleCharacteristic characteristic, String value) async {
-
     return FlutterWechatBle.writeBLECharacteristicValue(
         deviceId: device.deviceId,
         serviceId: service.uuid,
@@ -138,7 +138,7 @@ class BleModel {
         value: value);
   }
 
-  void listenConnectionStateChange(ConnectionStateChangeCallback callback){
+  void listenConnectionStateChange(ConnectionStateChangeCallback callback) {
     FlutterWechatBle.onBLEConnectionStateChange(callback);
   }
 

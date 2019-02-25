@@ -68,9 +68,7 @@ class HomeState extends State<Home> {
     } finally {
       try {
         await BleModel.getInstance().close(data);
-      } catch (e) {
-
-      }
+      } catch (e) {}
 
       await BleModel.getInstance().shutdown();
 
@@ -125,15 +123,13 @@ class HomeState extends State<Home> {
     });
 
     try {
-      BleModel.getInstance().onConnectionStateChange((String deviceId,bool connected){
+      BleModel.getInstance()
+          .onConnectionStateChange((String deviceId, bool connected) {
         Alert.toast(context, "Device $deviceId state change to $connected");
-
-
       });
       await BleModel.getInstance().shutdown();
       await BleModel.getInstance().startup(foundDeviceCallback);
       BleModel.getInstance().listenValueChanged(valueChangeCallback);
-
     } on BleError catch (e) {
       setState(() {
         error = e.message;
@@ -147,9 +143,11 @@ class HomeState extends State<Home> {
         appBar: AppBar(
           title: const Text('Bluetooth Helper'),
           actions: <Widget>[
-            new IconButton(icon: new Icon(Icons.refresh), onPressed: () {
-              startup();
-            })
+            new IconButton(
+                icon: new Icon(Icons.refresh),
+                onPressed: () {
+                  startup();
+                })
           ],
         ),
         body: new ErrorView(

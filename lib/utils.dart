@@ -1,8 +1,4 @@
-
-
-class Utils{
-
-
+class Utils {
   static int CODE0 = "0".codeUnitAt(0);
   static int CODE9 = "9".codeUnitAt(0);
   static int CODEA = "A".codeUnitAt(0);
@@ -10,8 +6,7 @@ class Utils{
   static int CODEa = "a".codeUnitAt(0);
   static int CODEz = "z".codeUnitAt(0);
 
-
-  static int toDigit(int codePoint){
+  static int toDigit(int codePoint) {
     int result = -1;
     if (CODE0 <= codePoint && codePoint <= CODE9) {
       result = codePoint - CODE0;
@@ -24,7 +19,7 @@ class Utils{
   }
 
   /// convert string to hex bytes
-  static List<int> decodeHex(String data){
+  static List<int> decodeHex(String data) {
     int len = data.length;
     if ((len & 0x01) != 0) {
       throw new Exception("Odd number of characters.");
@@ -32,7 +27,6 @@ class Utils{
     List<int> out = new List(len >> 1);
     // two characters form the hex value.
     for (int i = 0, j = 0; j < len; i++) {
-
       int f = toDigit(data.codeUnitAt(j)) << 4;
       j++;
       f = f | toDigit(data.codeUnitAt(j));
@@ -43,7 +37,7 @@ class Utils{
   }
 
   /// convert hex bytes to hex string
-  static String encodeHex(List<int> data){
+  static String encodeHex(List<int> data) {
     int l = data.length;
     StringBuffer buffer = new StringBuffer();
     for (int i = 0, j = 0; i < l; i++) {

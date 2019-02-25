@@ -45,7 +45,6 @@ class BleError extends Error {
 }
 
 class BleDevice {
-
   /// uuid of the device
   final String deviceId;
 
@@ -70,7 +69,6 @@ class BleDevice {
 }
 
 class BleService {
-
   /// uuid of the service
   final String uuid;
 
@@ -87,14 +85,14 @@ class BleService {
 
   BleCharacteristic getCharacteristic(String characteristicId) {
     return characteristics?.firstWhere((BleCharacteristic characteristic) =>
-    characteristicId == characteristic.uuid);
+        characteristicId == characteristic.uuid);
   }
 }
 
 class BleValue {
   BleValue({this.deviceId, this.serviceId, this.characteristicId, this.value});
 
-  factory BleValue.fromMap(data){
+  factory BleValue.fromMap(data) {
     String deviceId = data['deviceId'];
     String serviceId = data['serviceId'];
     String characteristicId = data['characteristicId'];
@@ -131,7 +129,6 @@ class BleValue {
 }
 
 class BleCharacteristic {
-
   /// uuid of the characteristic
   final String uuid;
 
@@ -156,12 +153,12 @@ class BleCharacteristic {
 
 typedef void FoundDeviceCallback(BleDevice device);
 typedef void ValueChangeCallback(BleValue value);
-typedef void ConnectionStateChangeCallback(String deviceId,bool connected);
+typedef void ConnectionStateChangeCallback(String deviceId, bool connected);
 
 class FlutterWechatBle {
   static const String code = "code";
   static const MethodChannel _channel =
-  const MethodChannel('flutter_wechat_ble');
+      const MethodChannel('flutter_wechat_ble');
 
   static bool allowDuplicatesKey;
 
@@ -173,7 +170,7 @@ class FlutterWechatBle {
   /// we must make sure, same deviceId is not dup
   static Map<String, BleDevice> _devices = new Map();
 
-  static Map<String,BleDevice> _connectedDevices = new Map();
+  static Map<String, BleDevice> _connectedDevices = new Map();
 
   static FoundDeviceCallback _onBluetoothDeviceFoundCallback;
 
@@ -190,11 +187,13 @@ class FlutterWechatBle {
                 _onBluetoothDeviceFoundCallback(oldDevice);
               }
             }
+
             /// update the RSSI
 
             return oldDevice;
           }, ifAbsent: () {
-            BleDevice device = new BleDevice(name: data['name'], deviceId: data['deviceId']);
+            BleDevice device =
+                new BleDevice(name: data['name'], deviceId: data['deviceId']);
             if (_onBluetoothDeviceFoundCallback != null) {
               _onBluetoothDeviceFoundCallback(device);
             }
@@ -211,8 +210,8 @@ class FlutterWechatBle {
         break;
       case "stateChange":
         {
-          if(_connectionStateChangeCallback!=null){
-            _connectionStateChangeCallback(data['deviceId'],data['connected']);
+          if (_connectionStateChangeCallback != null) {
+            _connectionStateChangeCallback(data['deviceId'], data['connected']);
           }
         }
         break;
@@ -240,12 +239,13 @@ class FlutterWechatBle {
 
   static Future startBluetoothDevicesDiscovery(
       {bool allowDuplicatesKey = false,
-        List<String> services = const <String>[],
-        int interval = 0}) async {
+      List<String> services = const <String>[],
+      int interval = 0}) async {
     FlutterWechatBle.allowDuplicatesKey = allowDuplicatesKey;
     FlutterWechatBle.services = services;
     FlutterWechatBle.interval = interval;
-    var result = await _channel.invokeMethod('startBluetoothDevicesDiscovery', {});
+    var result =
+        await _channel.invokeMethod('startBluetoothDevicesDiscovery', {});
     if (result[code] != null) {
       throw new BleError(code: result[code]);
     }
@@ -253,7 +253,8 @@ class FlutterWechatBle {
   }
 
   static Future stopBluetoothDevicesDiscovery() async {
-    var result = await _channel.invokeMethod('stopBluetoothDevicesDiscovery', {});
+    var result =
+        await _channel.invokeMethod('stopBluetoothDevicesDiscovery', {});
     if (result[code] != null) {
       throw new BleError(code: result[code]);
     }
@@ -298,15 +299,18 @@ class FlutterWechatBle {
     _valueChangeCallback = callback;
   }
 
-  static void onBLEConnectionStateChange(ConnectionStateChangeCallback callback){
+  static void onBLEConnectionStateChange(
+      ConnectionStateChangeCallback callback) {
     _connectionStateChangeCallback = callback;
   }
 
   static Future<List<BleService>> getBLEDeviceServices(
       {String deviceId}) async {
     assert(deviceId != null);
+
     /// we just get services from cache
-    var result = await _channel.invokeMethod('getBLEDeviceServices', {"deviceId": deviceId});
+    var result = await _channel
+        .invokeMethod('getBLEDeviceServices', {"deviceId": deviceId});
     if (result[code] != null) {
       throw new BleError(code: result[code]);
     }
@@ -315,7 +319,7 @@ class FlutterWechatBle {
     //services
     List<BleService> services = rawServices
         .map((data) =>
-    new BleService(uuid: data['uuid'], isPrimary: data['isPrimary']))
+            new BleService(uuid: data['uuid'], isPrimary: data['isPrimary']))
         .toList();
 
     return services;
@@ -326,9 +330,7 @@ class FlutterWechatBle {
   }
 
   static Future<List<BleCharacteristic>> getBLEDeviceCharacteristics(
-      {String deviceId,String serviceId}) async {
-
-
+      {String deviceId, String serviceId}) async {
     var result = await _channel.invokeMethod('getBLEDeviceCharacteristics',
         {"deviceId": deviceId, "serviceId": serviceId});
     if (result[code] != null) {
@@ -339,12 +341,12 @@ class FlutterWechatBle {
     //services
     List<BleCharacteristic> characteristics = rawData
         .map((data) => new BleCharacteristic(
-      uuid: data['uuid'],
-      read: data['read'],
-      write: data['write'],
-      notify: data['notify'],
-      indicate: data['indicate'],
-    ))
+              uuid: data['uuid'],
+              read: data['read'],
+              write: data['write'],
+              notify: data['notify'],
+              indicate: data['indicate'],
+            ))
         .toList();
 
     return characteristics;
@@ -355,13 +357,13 @@ class FlutterWechatBle {
     String serviceId,
     String characteristicId,
   }) async {
-    assert(deviceId!=null);
-    assert(serviceId!=null);
-    assert(characteristicId!=null);
-    var result = await _channel.invokeMethod('readBLECharacteristicValue',{
-    "deviceId": deviceId,
-    "serviceId": serviceId,
-    "characteristicId": characteristicId,
+    assert(deviceId != null);
+    assert(serviceId != null);
+    assert(characteristicId != null);
+    var result = await _channel.invokeMethod('readBLECharacteristicValue', {
+      "deviceId": deviceId,
+      "serviceId": serviceId,
+      "characteristicId": characteristicId,
     });
     if (result[code] != null) {
       throw new BleError(code: result[code]);
@@ -371,18 +373,18 @@ class FlutterWechatBle {
 
   static Future writeBLECharacteristicValue(
       {String deviceId,
-        String serviceId,
-        String characteristicId,
+      String serviceId,
+      String characteristicId,
 
-        /// string or List<int>
-        dynamic value}) async {
-    assert(value!=null);
-    assert(deviceId!=null);
-    assert(serviceId!=null);
-    assert(characteristicId!=null);
-    if(value is List<int>){
+      /// string or List<int>
+      dynamic value}) async {
+    assert(value != null);
+    assert(deviceId != null);
+    assert(serviceId != null);
+    assert(characteristicId != null);
+    if (value is List<int>) {
       value = Utils.encodeHex(value);
-    }else if(!(value is String)){
+    } else if (!(value is String)) {
       throw new Exception("value must be List<int> or String of hex");
     }
     var result = await _channel.invokeMethod('writeBLECharacteristicValue', {
@@ -399,15 +401,15 @@ class FlutterWechatBle {
 
   static Future notifyBLECharacteristicValueChange(
       {String deviceId,
-        String serviceId,
-        String characteristicId,
-        bool state}) async {
-    assert(deviceId!=null);
-    assert(serviceId!=null);
-    assert(characteristicId!=null);
-    assert(state!=null);
+      String serviceId,
+      String characteristicId,
+      bool state}) async {
+    assert(deviceId != null);
+    assert(serviceId != null);
+    assert(characteristicId != null);
+    assert(state != null);
     var result =
-    await _channel.invokeMethod('notifyBLECharacteristicValueChange', {
+        await _channel.invokeMethod('notifyBLECharacteristicValueChange', {
       "deviceId": deviceId,
       "serviceId": serviceId,
       "characteristicId": characteristicId,

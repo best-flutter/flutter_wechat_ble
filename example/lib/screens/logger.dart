@@ -77,14 +77,18 @@ class LoggerState extends State<Logger> {
         children: <Widget>[
           new Row(
             children: <Widget>[
-              new Expanded(child: new TextField(
+              new Expanded(
+                  child: new TextField(
                 autocorrect: false,
                 controller: controller,
                 onSubmitted: writeValue,
               )),
               new InkWell(
-                child: new Padding(padding: new EdgeInsets.all(10.0),child: new Text("Send"),),
-                onTap: (){
+                child: new Padding(
+                  padding: new EdgeInsets.all(10.0),
+                  child: new Text("Send"),
+                ),
+                onTap: () {
                   writeValue(controller.text);
                 },
               )
