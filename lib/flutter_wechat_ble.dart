@@ -45,8 +45,14 @@ class BleError extends Error {
 }
 
 class BleDevice {
+
+  /// uuid of the device
   final String deviceId;
+
+  /// device name
   final String name;
+
+  /// RSSI
   final String RSSI;
 
   List<BleService> services;
@@ -64,7 +70,11 @@ class BleDevice {
 }
 
 class BleService {
+
+  /// uuid of the service
   final String uuid;
+
+  /// always true in android and the `isPrimary` field of the class `CBService` in ios
   final bool isPrimary;
 
   List<BleCharacteristic> characteristics;
@@ -121,10 +131,20 @@ class BleValue {
 }
 
 class BleCharacteristic {
+
+  /// uuid of the characteristic
   final String uuid;
+
+  /// support read
   final bool read;
+
+  /// support write
   final bool write;
+
+  /// support notify
   final bool notify;
+
+  /// support indicate
   final bool indicate;
 
   // this property is valid only if notify = true
@@ -136,6 +156,7 @@ class BleCharacteristic {
 
 typedef void FoundDeviceCallback(BleDevice device);
 typedef void ValueChangeCallback(BleValue value);
+typedef void ConnectionStateChangeCallback(String deviceId,bool connected);
 
 class FlutterWechatBle {
   static const String code = "code";
@@ -188,7 +209,12 @@ class FlutterWechatBle {
           }
         }
         break;
-      case "":
+      case "stateChange":
+        {
+          if(_connectionStateChangeCallback!=null){
+            _connectionStateChangeCallback(data['deviceId'],data['connected']);
+          }
+        }
         break;
     }
   }
@@ -266,18 +292,21 @@ class FlutterWechatBle {
 
   static ValueChangeCallback _valueChangeCallback;
 
+  static ConnectionStateChangeCallback _connectionStateChangeCallback;
+
   static void onBLECharacteristicValueChange(ValueChangeCallback callback) {
     _valueChangeCallback = callback;
   }
 
+  static void onBLEConnectionStateChange(ConnectionStateChangeCallback callback){
+    _connectionStateChangeCallback = callback;
+  }
+
   static Future<List<BleService>> getBLEDeviceServices(
-      {BleDevice device}) async {
-    assert(device != null);
+      {String deviceId}) async {
+    assert(deviceId != null);
     /// we just get services from cache
-    if (device.services != null) {
-      return device.services;
-    }
-    var result = await _channel.invokeMethod('getBLEDeviceServices', {"deviceId": device.deviceId});
+    var result = await _channel.invokeMethod('getBLEDeviceServices', {"deviceId": deviceId});
     if (result[code] != null) {
       throw new BleError(code: result[code]);
     }
@@ -288,7 +317,6 @@ class FlutterWechatBle {
         .map((data) =>
     new BleService(uuid: data['uuid'], isPrimary: data['isPrimary']))
         .toList();
-    device.setServices(services);
 
     return services;
   }
@@ -298,13 +326,11 @@ class FlutterWechatBle {
   }
 
   static Future<List<BleCharacteristic>> getBLEDeviceCharacteristics(
-      {BleDevice device, BleService service}) async {
-    if (service.characteristics != null) {
-      return service.characteristics;
-    }
+      {String deviceId,String serviceId}) async {
+
 
     var result = await _channel.invokeMethod('getBLEDeviceCharacteristics',
-        {"deviceId": device.deviceId, "serviceId": service.uuid});
+        {"deviceId": deviceId, "serviceId": serviceId});
     if (result[code] != null) {
       throw new BleError(code: result[code]);
     }
@@ -320,13 +346,23 @@ class FlutterWechatBle {
       indicate: data['indicate'],
     ))
         .toList();
-    service.setCharacteristic(characteristics);
 
     return characteristics;
   }
 
-  static Future<BleValue> readBLECharacteristicValue() async {
-    var result = await _channel.invokeMethod('readBLECharacteristicValue');
+  static Future<BleValue> readBLECharacteristicValue({
+    String deviceId,
+    String serviceId,
+    String characteristicId,
+  }) async {
+    assert(deviceId!=null);
+    assert(serviceId!=null);
+    assert(characteristicId!=null);
+    var result = await _channel.invokeMethod('readBLECharacteristicValue',{
+    "deviceId": deviceId,
+    "serviceId": serviceId,
+    "characteristicId": characteristicId,
+    });
     if (result[code] != null) {
       throw new BleError(code: result[code]);
     }

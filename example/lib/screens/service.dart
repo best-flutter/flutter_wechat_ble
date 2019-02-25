@@ -70,7 +70,7 @@ class CharacteristicItemState extends State<CharacteristicItem> {
             children: <Widget>[
               new Text(
                 characteristic.uuid,
-                style: new TextStyle(fontSize: 16.0),
+                style: new TextStyle(fontSize: 12.0),
               ),
               new Row(
                 children: buildProperties(characteristic),

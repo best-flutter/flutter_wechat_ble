@@ -63,18 +63,14 @@
             [__self.channel invokeMethod:@"foundDevice" arguments:device];
         };
         
-        _adapter.connectionStatusCallback = ^(CBPeripheral * c, NSError * e) {
-            //c.state;
-            if(e){
-                //did failed
-                NSLog(@"CBPeripheral %@ did not connect right ",c);
-            }else{
-                
-                
-                
-            }
-            
-        } ;
+     
+        
+        _adapter.connectionStatusCallback=^(CBPeripheral * device, NSError * error){
+            [__self.channel invokeMethod:@"stateChange" arguments:@{
+                                                         @"deviceId":[Utils uuid:device.identifier],
+                                                         @"connected": [NSNumber numberWithBool:device.state == CBPeripheralStateConnected]
+                                                         }];
+        };
        // _adapter.connectDeviceCallback(<#CBPeripheral *#>, <#NSError *#>)
         
         _adapter.updateValueCallback = ^(CBPeripheral * device, CBCharacteristic * character, NSError * error) {

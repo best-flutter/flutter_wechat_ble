@@ -1,3 +1,4 @@
+import 'package:easy_alert/easy_alert.dart';
 import 'package:flutter_wechat_ble/flutter_wechat_ble.dart';
 import 'package:flutter/material.dart';
 
@@ -34,6 +35,13 @@ class BleModel {
     return instance;
   }
 
+  void onConnectionStateChange(ConnectionStateChangeCallback callback){
+    FlutterWechatBle.onBLEConnectionStateChange((String deviceId,bool connected){
+
+      callback(deviceId,connected);
+    });
+  }
+
   Future shutdown() async {
     if (scanning) {
       try {
@@ -56,8 +64,9 @@ class BleModel {
     try {
       await FlutterWechatBle.openBluetoothAdapter();
       opening = true;
-    } catch (e) {
+    } on BleError catch (e) {
       await this.shutdown();
+
       return false;
     }
     try {
@@ -80,7 +89,11 @@ class BleModel {
   }
 
   Future<List<BleService>> getServices(BleDevice device) async {
-    return FlutterWechatBle.getBLEDeviceServices(device: device);
+    // 从缓存取出来,这里因为原生层面已经做了一次缓存，所以也可以直接调用
+    if(device.services==null){
+       device.services = await FlutterWechatBle.getBLEDeviceServices(deviceId: device.deviceId);
+    }
+    return device.services;
   }
 
   Future stopScan() async {
@@ -88,9 +101,22 @@ class BleModel {
   }
 
   Future<List<BleCharacteristic>> getCharacteristics(
-      BleDevice device, BleService service) {
-    return FlutterWechatBle.getBLEDeviceCharacteristics(
-        device: device, service: service);
+      BleDevice device, BleService service) async {
+    if(service.characteristics==null){
+      service.characteristics = await FlutterWechatBle.getBLEDeviceCharacteristics(
+          deviceId: device.deviceId, serviceId: service.uuid);
+    }
+
+    return service.characteristics;
+  }
+
+  Future<BleValue> readValue(BleDevice device, BleService service,
+      BleCharacteristic characteristic){
+    return FlutterWechatBle.readBLECharacteristicValue(
+      deviceId: device.deviceId,
+      serviceId: service.uuid,
+      characteristicId: characteristic.uuid
+    );
   }
 
   Future changeNotifyState(BleDevice device, BleService service,

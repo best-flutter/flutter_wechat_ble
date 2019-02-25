@@ -1,3 +1,4 @@
+import 'package:easy_alert/easy_alert.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_wechat_ble/flutter_wechat_ble.dart';
@@ -124,6 +125,11 @@ class HomeState extends State<Home> {
     });
 
     try {
+      BleModel.getInstance().onConnectionStateChange((String deviceId,bool connected){
+        Alert.toast(context, "Device $deviceId state change to $connected");
+
+
+      });
       await BleModel.getInstance().shutdown();
       await BleModel.getInstance().startup(foundDeviceCallback);
       BleModel.getInstance().listenValueChanged(valueChangeCallback);
