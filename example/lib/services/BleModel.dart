@@ -130,9 +130,6 @@ class BleModel {
 
   Future writeValue(BleDevice device, BleService service,
       BleCharacteristic characteristic, String value) async {
-    if (!characteristic.write) {
-      throw new Exception("Current characteristic does not supports write");
-    }
 
     return FlutterWechatBle.writeBLECharacteristicValue(
         deviceId: device.deviceId,

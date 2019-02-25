@@ -24,6 +24,7 @@ class LoggerState extends State<Logger> {
 
   @override
   void didChangeDependencies() {
+    controller = new TextEditingController();
     BleModel.logger.addListener(onChange);
     super.didChangeDependencies();
   }
@@ -38,11 +39,13 @@ class LoggerState extends State<Logger> {
     setState(() {});
   }
 
+  TextEditingController controller;
+
   void writeValue(String value) async {
     try {
       BleModel.history = value;
       BleModel.logger
-          .add("Write value to ${widget.characteristic.uuid} $value");
+          .add("Write value to ${widget.characteristic.uuid}:$value");
       await BleModel.getInstance().writeValue(
           widget.device, widget.service, widget.characteristic, value);
       BleModel.logger.add("Write value success");
@@ -72,9 +75,20 @@ class LoggerState extends State<Logger> {
       ),
       body: new Column(
         children: <Widget>[
-          new TextField(
-            autocorrect: false,
-            onSubmitted: writeValue,
+          new Row(
+            children: <Widget>[
+              new Expanded(child: new TextField(
+                autocorrect: false,
+                controller: controller,
+                onSubmitted: writeValue,
+              )),
+              new InkWell(
+                child: new Padding(padding: new EdgeInsets.all(10.0),child: new Text("Send"),),
+                onTap: (){
+                  writeValue(controller.text);
+                },
+              )
+            ],
           ),
           new Expanded(
               child: new ListView.builder(

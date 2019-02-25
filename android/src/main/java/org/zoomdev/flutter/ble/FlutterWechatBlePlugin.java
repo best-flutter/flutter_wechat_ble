@@ -179,7 +179,9 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener {
                 Map map = new HashMap();
                 map.put("uuid", Utils.getUuidOfCharacteristic(characteristic));
                 map.put("read",(characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_READ) ==BluetoothGattCharacteristic.PROPERTY_READ );
-                map.put("write",(characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_WRITE) ==BluetoothGattCharacteristic.PROPERTY_WRITE );
+                map.put("write",((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_WRITE) ==BluetoothGattCharacteristic.PROPERTY_WRITE) || (
+                        (characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) ==BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
+                        ) );
                 map.put("notify",(characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) ==BluetoothGattCharacteristic.PROPERTY_NOTIFY );
                 map.put("indicate",(characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_INDICATE) ==BluetoothGattCharacteristic.PROPERTY_INDICATE );
                 arr.add(map);
