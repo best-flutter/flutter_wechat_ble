@@ -1,6 +1,6 @@
 # flutter_wechat_ble
 
-![](images/screen.png)
+![](screen.png)
 
 A ble library with wechat api style for flutter.
 
