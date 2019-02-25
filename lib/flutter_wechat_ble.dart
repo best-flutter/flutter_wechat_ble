@@ -188,6 +188,8 @@ class FlutterWechatBle {
           }
         }
         break;
+      case "":
+        break;
     }
   }
 

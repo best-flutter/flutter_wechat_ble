@@ -93,6 +93,9 @@ class HomeState extends State<Home> {
   }
 
   void foundDeviceCallback(BleDevice device) {
+    setState(() {
+      loading = false;
+    });
     print("Found device : " + device.name);
     setState(() {
       data.add(device);
@@ -110,6 +113,7 @@ class HomeState extends State<Home> {
 
   void valueChangeCallback(BleValue value) {
     //LoggerModel.getInstance().add(value);
+
     BleModel.logger.add("Value changed: $value");
   }
 
@@ -118,12 +122,12 @@ class HomeState extends State<Home> {
       data.clear();
       loading = true;
     });
+
     try {
+      await BleModel.getInstance().shutdown();
       await BleModel.getInstance().startup(foundDeviceCallback);
       BleModel.getInstance().listenValueChanged(valueChangeCallback);
-      setState(() {
-        loading = false;
-      });
+
     } on BleError catch (e) {
       setState(() {
         error = e.message;
@@ -137,7 +141,9 @@ class HomeState extends State<Home> {
         appBar: AppBar(
           title: const Text('Bluetooth Helper'),
           actions: <Widget>[
-            new IconButton(icon: new Icon(Icons.refresh), onPressed: () {})
+            new IconButton(icon: new Icon(Icons.refresh), onPressed: () {
+              startup();
+            })
           ],
         ),
         body: new ErrorView(
