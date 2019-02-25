@@ -24,10 +24,11 @@ class Utils {
 
     /**
      * 先预留，找到合适的方法再改
+     *
      * @param device
      * @return
      */
-    static String getDeviceId(BluetoothDevice device){
+    static String getDeviceId(BluetoothDevice device) {
         //这里只要返回唯一就行
         return new StringBuilder().append(device.getAddress()).append(device.hashCode()).toString();//return device.getAddress();
     }

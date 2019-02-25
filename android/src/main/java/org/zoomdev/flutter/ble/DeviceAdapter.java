@@ -114,16 +114,16 @@ class DeviceAdapter extends BluetoothGattCallback {
         super.onCharacteristicWrite(gatt, characteristic, status);
 
 
-        if(listener!=null){
-            listener.onCharacteristicWrite(this,characteristic,status == BluetoothGatt.GATT_SUCCESS);
+        if (listener != null) {
+            listener.onCharacteristicWrite(this, characteristic, status == BluetoothGatt.GATT_SUCCESS);
         }
     }
 
     @Override
     public synchronized void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         super.onCharacteristicRead(gatt, characteristic, status);
-        if(listener!=null){
-            listener.onCharacteristicRead(this,characteristic,status == BluetoothGatt.GATT_SUCCESS);
+        if (listener != null) {
+            listener.onCharacteristicRead(this, characteristic, status == BluetoothGatt.GATT_SUCCESS);
         }
     }
 
@@ -135,9 +135,8 @@ class DeviceAdapter extends BluetoothGattCallback {
         }
     }
 
-    @Override
     public synchronized void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
-        super.onMtuChanged(gatt, mtu, status);
+        //super.onMtuChanged(gatt, mtu, status);
         if (status != BluetoothGatt.GATT_SUCCESS) {  // 写数据失败
             return;
         }
@@ -203,8 +202,6 @@ class DeviceAdapter extends BluetoothGattCallback {
     public String getName() {
         return device.getName();
     }
-
-
 
 
     public static interface GetServicesListener {

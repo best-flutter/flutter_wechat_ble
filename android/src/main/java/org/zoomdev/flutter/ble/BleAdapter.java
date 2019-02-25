@@ -228,22 +228,22 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
 
     @Override
     public void onCharacteristicChanged(DeviceAdapter device, BluetoothGattCharacteristic characteristic) {
-        if(listener!=null){
-            listener.onCharacteristicChanged(device,characteristic);
+        if (listener != null) {
+            listener.onCharacteristicChanged(device, characteristic);
         }
     }
 
     @Override
     public void onCharacteristicWrite(DeviceAdapter device, BluetoothGattCharacteristic characteristic, boolean success) {
-        if(listener!=null){
-            listener.onCharacteristicWrite(device,characteristic,success);
+        if (listener != null) {
+            listener.onCharacteristicWrite(device, characteristic, success);
         }
     }
 
     @Override
     public void onCharacteristicRead(DeviceAdapter device, BluetoothGattCharacteristic characteristic, boolean success) {
-        if(listener!=null){
-            listener.onCharacteristicRead(device,characteristic,success);
+        if (listener != null) {
+            listener.onCharacteristicRead(device, characteristic, success);
         }
     }
 

@@ -18,7 +18,6 @@ public interface BleListener {
     void onDeviceFound(BluetoothDevice device, int rssi);
 
 
-
     void onDeviceConnected(DeviceAdapter device);
 
     void onDeviceDisconnected(DeviceAdapter device);

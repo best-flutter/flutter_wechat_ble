@@ -10,7 +10,7 @@ class HexUtil {
     }
 
     public static short toShort(byte[] data, int start) {
-        return (short)(data[start + 1] << 8 & '\uff00' | data[start] & 255);
+        return (short) (data[start + 1] << 8 & '\uff00' | data[start] & 255);
     }
 
     public static int toInt(byte[] data, int start) {
@@ -33,7 +33,7 @@ class HexUtil {
         char[] out = new char[l << 1];
         int i = 0;
 
-        for(int var5 = 0; i < l; ++i) {
+        for (int var5 = 0; i < l; ++i) {
             out[var5++] = toDigits[(240 & data[i]) >>> 4];
             out[var5++] = toDigits[15 & data[i]];
         }
@@ -73,12 +73,12 @@ class HexUtil {
             byte[] out = new byte[len >> 1];
             int i = 0;
 
-            for(int j = 0; j < len; ++i) {
+            for (int j = 0; j < len; ++i) {
                 int f = toDigit(data[j], j) << 4;
                 ++j;
                 f |= toDigit(data[j], j);
                 ++j;
-                out[i] = (byte)(f & 255);
+                out[i] = (byte) (f & 255);
             }
 
             return out;
@@ -104,7 +104,7 @@ class HexUtil {
         } else {
             StringBuilder sb = new StringBuilder(len);
 
-            for(int j = i; j < len; ++j) {
+            for (int j = i; j < len; ++j) {
                 sb.append('0');
             }
 
@@ -117,7 +117,7 @@ class HexUtil {
         int ret = 0;
         int e = s + n;
 
-        for(int i = s; i < e; ++i) {
+        for (int i = s; i < e; ++i) {
             ret <<= 8;
             ret |= b[i] & 255;
         }
@@ -129,7 +129,7 @@ class HexUtil {
         int len = str.length();
         StringBuilder sb = new StringBuilder();
 
-        for(int i = 0; i < len; i += 8) {
+        for (int i = 0; i < len; i += 8) {
             sb.append(str.substring(i, Math.min(i + 8, str.length())));
             sb.append(' ');
         }

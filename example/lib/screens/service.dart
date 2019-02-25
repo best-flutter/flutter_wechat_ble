@@ -48,7 +48,7 @@ class CharacteristicItemState extends State<CharacteristicItem> {
           }));
     }
     if (characteristic.indicate) {
-      list.add(new Text("Incicator"));
+      list.add(new Text("Indicate"));
     }
     return list;
   }

@@ -1,6 +1,5 @@
 package org.zoomdev.flutter.ble;
 
-import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 
 /**
@@ -30,7 +29,6 @@ public interface DeviceListener {
      * @param device
      */
     void onDisconnected(DeviceAdapter device);
-
 
 
     /**
