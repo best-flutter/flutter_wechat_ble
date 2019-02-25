@@ -1,18 +1,11 @@
 # flutter_wechat_ble
 
+![](images/screen.png)
+
 A ble library with wechat api style for flutter.
 
 微信api风格的蓝牙库
 
-## Example
-
-![](images/1.jpg)
-
-![](images/2.jpg)
-
-![](images/3.jpg)
-
-![](images/4.jpg)
 
 ## 安装
 
@@ -285,6 +278,19 @@ FlutterWechatBle.onBLECharacteristicValueChange(null)
 ```
 
 设置为null即可
+
+
+
+
+## Example
+
+![](images/1.jpg)
+
+![](images/2.jpg)
+
+![](images/3.jpg)
+
+![](images/4.jpg)
 
 
 
