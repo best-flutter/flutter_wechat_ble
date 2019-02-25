@@ -165,6 +165,20 @@ await FlutterWechatBle.createBLEConnection(deviceId: device.deviceId)
 await FlutterWechatBle.closeBLEConnection(deviceId: device.deviceId);
 ```
 
+#### 监听外设连接状态
+
+
+```
+ FlutterWechatBle.onBLEConnectionStateChange((String deviceId,bool connected){
+
+ });
+```
+
+停止监听外设连接状态:
+```
+FlutterWechatBle.onBLEConnectionStateChange(null);
+```
+
 #### 获取服务
 
 ```

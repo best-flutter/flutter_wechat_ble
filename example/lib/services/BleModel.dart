@@ -138,6 +138,10 @@ class BleModel {
         value: value);
   }
 
+  void listenConnectionStateChange(ConnectionStateChangeCallback callback){
+    FlutterWechatBle.onBLEConnectionStateChange(callback);
+  }
+
   void listenValueChanged(ValueChangeCallback callback) {
     FlutterWechatBle.onBLECharacteristicValueChange(callback);
   }
