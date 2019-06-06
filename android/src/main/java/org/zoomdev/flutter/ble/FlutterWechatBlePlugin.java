@@ -1,11 +1,16 @@
 package org.zoomdev.flutter.ble;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Build;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,19 +21,21 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
+import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 /**
  * FlutterWechatBlePlugin
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener {
+public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, PluginRegistry.RequestPermissionsResultListener {
     /**
      * Plugin registration.
      */
     public static void registerWith(Registrar registrar) {
         final MethodChannel channel = new MethodChannel(registrar.messenger(), "flutter_wechat_ble");
-        channel.setMethodCallHandler(new FlutterWechatBlePlugin(registrar.context().getApplicationContext(), channel));
+        FlutterWechatBlePlugin plugin = new FlutterWechatBlePlugin(registrar, channel);
+        channel.setMethodCallHandler(plugin);
     }
 
 
@@ -64,11 +71,17 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener {
         }
     }
 
-    public FlutterWechatBlePlugin(Context context, MethodChannel channel) {
+
+    Registrar registrar;
+
+    public FlutterWechatBlePlugin(Registrar registrar, MethodChannel channel) {
         super();
-        adapter = new BleAdapter(context);
+        this.registrar = registrar;
+        adapter = new BleAdapter(registrar.context().getApplicationContext());
         adapter.setListener(this);
         this.channel = channel;
+
+        registrar.addRequestPermissionsResultListener(this);
     }
 
     public static final String NOT_INIT = "10000";
@@ -93,8 +106,26 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener {
         }
     }
 
-
+    private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 1;
     public synchronized void startBluetoothDevicesDiscovery(Result promise) {
+        //检查权限
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {//如果 API level 是大于等于 23(Android 6.0) 时
+            //判断是否具有权限
+            if (ContextCompat.checkSelfPermission(registrar.activity(),
+                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                //判断是否需要向用户解释为什么需要申请该权限
+                if (ActivityCompat.shouldShowRequestPermissionRationale(registrar.activity(),
+                        Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                    Toast.makeText(registrar.activity(), "开始需要打开位置权限才可以搜索到Ble设备", Toast.LENGTH_SHORT).show();
+                }
+                //请求权限
+                ActivityCompat.requestPermissions(registrar.activity(),
+                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                        REQUEST_CODE_ACCESS_COARSE_LOCATION);
+            }
+        }
+
         BluetoothAdapterResult ret = adapter.startScan();
         if (BluetoothAdapterResult.BluetoothAdapterResultOk == adapter.startScan()) {
             promise.success(new HashMap<String,Object>());
@@ -414,5 +445,24 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener {
         map.put("deviceId", Utils.getDeviceId(device));
         map.put("name", device.getName() == null ? "" : device.getName());
         channel.invokeMethod("foundDevice", map);
+    }
+
+    @Override
+    public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == REQUEST_CODE_ACCESS_COARSE_LOCATION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                //用户允许改权限，0表示允许，-1表示拒绝 PERMISSION_GRANTED = 0， PERMISSION_DENIED = -1
+                //permission was granted, yay! Do the contacts-related task you need to do.
+                //这里进行授权被允许的处理
+            } else {
+                //permission denied, boo! Disable the functionality that depends on this permission.
+                //这里进行权限被拒绝的处理
+            }
+
+            return true;
+        } else {
+
+            return false;
+        }
     }
 }

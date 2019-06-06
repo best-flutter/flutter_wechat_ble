@@ -3,18 +3,17 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_wechat_ble/utils.dart';
 
-/**
- * #define NOT_INIT @"10000"
-    #define NOT_AVALIABLE @"10001"
-    #define NO_DEVICE @"10002"
-    #define CONNECTION_FAIL @"10003"
-    #define NO_SERVICE @"10004"
-    #define NO_CHARACTERISTIC @"10005"
-    #define NO_CONNECTION @"10006"
-    #define PROPERTY_NOT_SUPPOTT @"10007"
-    #define SYSTEM_ERROR @"10008"
-    #define SYSTEM_NOT_SUPPORT @"10009"
- */
+// #define NOT_INIT @"10000"
+//    #define NOT_AVALIABLE @"10001"
+//    #define NO_DEVICE @"10002"
+//    #define CONNECTION_FAIL @"10003"
+//    #define NO_SERVICE @"10004"
+//    #define NO_CHARACTERISTIC @"10005"
+//    #define NO_CONNECTION @"10006"
+//    #define PROPERTY_NOT_SUPPOTT @"10007"
+//    #define SYSTEM_ERROR @"10008"
+//    #define SYSTEM_NOT_SUPPORT @"10009"
+
 class BleError extends Error {
   String code;
 
@@ -41,6 +40,7 @@ class BleError extends Error {
       case "10008":
         return "System error!";
     }
+    return "10009";
   }
 }
 

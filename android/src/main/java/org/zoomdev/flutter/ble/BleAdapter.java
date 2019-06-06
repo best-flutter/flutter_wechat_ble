@@ -1,5 +1,6 @@
 package org.zoomdev.flutter.ble;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -8,6 +9,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Build;
 
 import java.util.Map;
@@ -95,6 +97,9 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
 
 
     public BluetoothAdapterResult startScan() {
+
+
+
         synchronized (this) {
             if (mBluetoothAdapter == null) {
                 return BluetoothAdapterResult.BluetoothAdapterResultNotInit;

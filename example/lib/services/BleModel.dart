@@ -2,6 +2,7 @@ import 'package:easy_alert/easy_alert.dart';
 import 'package:flutter_wechat_ble/flutter_wechat_ble.dart';
 import 'package:flutter/material.dart';
 
+
 class BleLogger extends ChangeNotifier {
   List<String> logger = [];
 
@@ -62,6 +63,7 @@ class BleModel {
 
   Future startup(FoundDeviceCallback success) async {
     try {
+
       await FlutterWechatBle.openBluetoothAdapter();
       opening = true;
     } on BleError catch (e) {
