@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_wechat_ble/utils.dart';
 
+export 'package:flutter_wechat_ble/utils.dart';
+
 // #define NOT_INIT @"10000"
 //    #define NOT_AVALIABLE @"10001"
 //    #define NO_DEVICE @"10002"
@@ -117,7 +119,7 @@ class BleValue {
       if (value == null) {
         return null;
       }
-      _bytes = Utils.decodeHex(value);
+      _bytes = HexUtils.decodeHex(value);
     }
     return _bytes;
   }
@@ -383,7 +385,7 @@ class FlutterWechatBle {
     assert(serviceId != null);
     assert(characteristicId != null);
     if (value is List<int>) {
-      value = Utils.encodeHex(value);
+      value = HexUtils.encodeHex(value);
     } else if (!(value is String)) {
       throw new Exception("value must be List<int> or String of hex");
     }

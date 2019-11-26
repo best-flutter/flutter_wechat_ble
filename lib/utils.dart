@@ -1,4 +1,4 @@
-class Utils {
+class HexUtils {
   static int CODE0 = "0".codeUnitAt(0);
   static int CODE9 = "9".codeUnitAt(0);
   static int CODEA = "A".codeUnitAt(0);
