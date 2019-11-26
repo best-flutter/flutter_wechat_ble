@@ -66,13 +66,13 @@ class HomeState extends State<Home> {
         );
       }));
     } finally {
-      try {
-        await BleModel.getInstance().close(data);
-      } catch (e) {}
-
-      await BleModel.getInstance().shutdown();
-
-      await this.startup();
+//      try {
+//        await BleModel.getInstance().close(data);
+//      } catch (e) {}
+//
+//      await BleModel.getInstance().shutdown();
+//
+//      await this.startup();
     }
   }
 

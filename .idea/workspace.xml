@@ -7,14 +7,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a49504e8-50a5-4d1d-9443-294c25551650" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/example_lib_main_dart.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/runConfigurations/example_lib_main_dart.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/src/main/java/org/zoomdev/flutter/ble/BleScanner4.java" beforeDir="false" afterPath="$PROJECT_DIR$/android/src/main/java/org/zoomdev/flutter/ble/BleScanner4.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/src/main/java/org/zoomdev/flutter/ble/FlutterWechatBlePlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/android/src/main/java/org/zoomdev/flutter/ble/FlutterWechatBlePlugin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/lib/screens/logger.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/lib/screens/logger.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/lib/services/BleModel.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/lib/services/BleModel.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/lib/screens/home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/lib/screens/home.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.dart_tool/" />
     <ignored path="$PROJECT_DIR$/.idea/" />
@@ -30,35 +23,14 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/lib/flutter_wechat_ble.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="107">
-              <caret line="253" selection-start-line="253" selection-end-line="253" />
-              <folding>
-                <element signature="e#0#20#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/example/lib/screens/logger.dart">
+        <entry file="file://$PROJECT_DIR$/example/lib/screens/home.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="356">
-              <caret line="274" column="25" selection-start-line="274" selection-start-column="25" selection-end-line="274" selection-end-column="25" />
+            <state relative-caret-position="462">
+              <caret line="61" lean-forward="true" selection-start-line="61" selection-end-line="61" />
               <folding>
                 <element signature="e#0#44#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/working/flutter/bin/cache/pkg/sky_engine/lib/core/string.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="143">
-              <caret line="330" column="9" selection-start-line="330" selection-start-column="9" selection-end-line="330" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -76,6 +48,7 @@
       <find>REQUEST_CODE_ACCESS_COARSE_LOCATION</find>
       <find>disconnectDevice</find>
       <find>closeBLEConnection</find>
+      <find>openDeviceView</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -87,19 +60,19 @@
         <option value="$PROJECT_DIR$/pubspec.yaml" />
         <option value="$PROJECT_DIR$/android/src/main/AndroidManifest.xml" />
         <option value="$PROJECT_DIR$/example/lib/screens/service.dart" />
-        <option value="$PROJECT_DIR$/example/lib/screens/home.dart" />
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/example/pubspec.yaml" />
         <option value="$PROJECT_DIR$/example/lib/services/BleModel.dart" />
         <option value="$PROJECT_DIR$/lib/flutter_wechat_ble.dart" />
         <option value="$PROJECT_DIR$/android/src/main/java/org/zoomdev/flutter/ble/FlutterWechatBlePlugin.java" />
         <option value="$PROJECT_DIR$/example/lib/screens/logger.dart" />
+        <option value="$PROJECT_DIR$/example/lib/screens/home.dart" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="457" />
-    <option name="y" value="53" />
+    <option name="x" value="12" />
+    <option name="y" value="23" />
     <option name="width" value="1400" />
     <option name="height" value="877" />
   </component>
@@ -133,6 +106,20 @@
               <item name="example" type="462c0819:PsiDirectoryNode" />
               <item name="lib" type="462c0819:PsiDirectoryNode" />
               <item name="screens" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="flutter_wechat_ble" type="b2602c69:ProjectViewProjectNode" />
+              <item name="flutter_wechat_ble" type="462c0819:PsiDirectoryNode" />
+              <item name="example" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+              <item name="services" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="flutter_wechat_ble" type="b2602c69:ProjectViewProjectNode" />
+              <item name="flutter_wechat_ble" type="462c0819:PsiDirectoryNode" />
+              <item name="example" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+              <item name="widgets" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="flutter_wechat_ble" type="b2602c69:ProjectViewProjectNode" />
@@ -216,7 +203,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="457" y="53" width="1400" height="877" extended-state="0" />
+    <frame x="12" y="23" width="1400" height="877" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.27466863" />
@@ -231,7 +218,7 @@
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="bottom" id="Run" order="2" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.6863034" visible="true" weight="0.3987261" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.6863034" visible="true" weight="0.3987261" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3299363" />
@@ -243,7 +230,7 @@
       <window_info anchor="bottom" id="Version Control" order="12" weight="0.3299363" />
       <window_info anchor="bottom" id="Terminal" order="13" sideWeight="0.49926144" weight="0.3299363" />
       <window_info anchor="bottom" id="Messages" order="14" sideWeight="0.4985229" weight="0.32866243" />
-      <window_info active="true" anchor="right" x="0" y="0" width="300" height="677" id="Documentation" side_tool="true" visible="true" weight="0.185567" />
+      <window_info anchor="right" x="0" y="0" width="300" height="677" id="Documentation" side_tool="true" visible="true" weight="0.185567" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -280,13 +267,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/example/lib/main.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="27" column="19" selection-start-line="27" selection-start-column="19" selection-end-line="27" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="179">
@@ -316,16 +296,6 @@
     <entry file="file://$PROJECT_DIR$/images/4.jpg">
       <provider selected="true" editor-type-id="images" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/example/lib/screens/home.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="212">
-          <caret line="93" column="7" selection-start-line="93" selection-start-column="7" selection-end-line="93" selection-end-column="7" />
-          <folding>
-            <element signature="e#0#44#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/working/flutter/.pub-cache/hosted/pub.flutter-io.cn/permission_handler-3.1.0/lib/src/permission_enums.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-205">
@@ -347,16 +317,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="345">
           <caret line="23" column="43" selection-start-line="23" selection-start-column="20" selection-end-line="23" selection-end-column="43" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/example/lib/services/BleModel.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="22" lean-forward="true" selection-start-line="11" selection-start-column="22" selection-end-line="11" selection-end-column="22" />
-          <folding>
-            <element signature="e#0#44#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -444,16 +404,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/flutter_wechat_ble.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="107">
-          <caret line="253" selection-start-line="253" selection-end-line="253" />
-          <folding>
-            <element signature="e#0#20#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/working/flutter/bin/cache/pkg/sky_engine/lib/core/string.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="143">
@@ -463,8 +413,48 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/example/lib/screens/logger.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="356">
-          <caret line="274" column="25" selection-start-line="274" selection-start-column="25" selection-end-line="274" selection-end-column="25" />
+        <state relative-caret-position="191">
+          <caret line="263" column="14" selection-start-line="263" selection-start-column="14" selection-end-line="263" selection-end-column="14" />
+          <folding>
+            <element signature="e#0#44#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/example/lib/main.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="27" column="19" selection-start-line="27" selection-start-column="19" selection-end-line="27" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/example/lib/widgets/LoadingView.dart">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/example/lib/services/BleModel.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="11" column="22" selection-start-line="11" selection-start-column="22" selection-end-line="11" selection-end-column="22" />
+          <folding>
+            <element signature="e#0#44#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/flutter_wechat_ble.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="113">
+          <caret line="265" column="40" selection-start-line="265" selection-start-column="40" selection-end-line="265" selection-end-column="40" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/example/lib/screens/home.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="462">
+          <caret line="61" lean-forward="true" selection-start-line="61" selection-end-line="61" />
           <folding>
             <element signature="e#0#44#0" expanded="true" />
           </folding>
