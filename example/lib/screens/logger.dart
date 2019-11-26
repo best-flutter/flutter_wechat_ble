@@ -42,7 +42,6 @@ class LoggerState extends State<Logger> {
 
   TextEditingController controller;
 
-
   String str = "";
 
   void writeValue(String value) async {
@@ -86,12 +85,7 @@ class LoggerState extends State<Logger> {
                 autocorrect: false,
                 controller: controller,
                 onSubmitted: writeValue,
-                    onChanged: (String text){
-
-
-
-
-                    },
+                onChanged: (String text) {},
               )),
               new InkWell(
                 child: new Padding(
@@ -113,31 +107,19 @@ class LoggerState extends State<Logger> {
           )),
           new SizedBox(
             height: 200,
-            child: new NumberKeyboard(onPress: (text){
-              str += text;
-
-              var display = "";
-              if(str.length == 0){
-                display = str;
-              }else{
-                int i;
-                for( i=0; i < str.length; i+=2){
-                  if(i >= str.length - 1){
-                    display += str.substring(i,str.length-1);
-                  }else{
-                    display += str.substring(i,i+2);
-                    display += " ";
+            child: new NumberKeyboard(
+              onPress: (text) {
+                if (text == 'X') {
+                  if (str.length > 0) {
+                    str = str.substring(0, str.length - 1);
                   }
+                } else {
+                  str += text;
                 }
-                if(str.length % 2 > 0){
-                  display += str.substring(str.length-1);
-                }
-              }
 
-
-              controller.text = display;
-
-            },),
+                controller.text = str;
+              },
+            ),
           )
         ],
       ),
@@ -145,30 +127,32 @@ class LoggerState extends State<Logger> {
   }
 }
 
-
 typedef void NumberCallback(String number);
 
-class NumberKey extends StatelessWidget{
-
+class NumberKey extends StatelessWidget {
   final NumberCallback onPress;
   final String text;
 
-  NumberKey({
-    this.text,
-    this.onPress
-});
-
+  NumberKey({this.text, this.onPress});
 
   @override
   Widget build(BuildContext context) {
-    return new Expanded(child: new InkWell(
-      child: new Center(child: new Text(text,style: new TextStyle(fontSize: 20.0),),),
-      onTap: (){
-        onPress(text);
-      },
-    ));
+    return new Expanded(
+        child: new Container(
+          color: Colors.white,
+          child: new InkWell(
+            child: new Center(
+              child: new Text(
+                text,
+                style: new TextStyle(fontSize: 20.0),
+              ),
+            ),
+            onTap: () {
+              onPress(text);
+            },
+          ),
+        ));
   }
-
 }
 
 /**
@@ -180,68 +164,125 @@ class NumberKey extends StatelessWidget{
  * 返回 删除
  *
  */
-class NumberKeyboard extends StatelessWidget{
-
-
+class NumberKeyboard extends StatelessWidget {
   final NumberCallback onPress;
 
-  NumberKeyboard({
-    this.onPress
-  });
+  NumberKeyboard({this.onPress});
 
   @override
   Widget build(BuildContext context) {
-
-    return new Column(
-
-    children: <Widget>[
-
-      new Expanded(child: new Row(
+    return new Container(
+      color: Colors.grey,
+      child: new Column(
         children: <Widget>[
-
-          new NumberKey(text: "0",onPress: onPress,),
-          new NumberKey(text: "2",onPress: onPress,),
-          new NumberKey(text: "3",onPress: onPress,),
-          new NumberKey(text: "4",onPress: onPress,),
-
+          new Container(height:1),
+          new Expanded(
+              child: new Row(
+            children: <Widget>[
+              new NumberKey(
+                text: "0",
+                onPress: onPress,
+              ),
+              new NumberKey(
+                text: "1",
+                onPress: onPress,
+              ),
+              new NumberKey(
+                text: "2",
+                onPress: onPress,
+              ),
+              new NumberKey(
+                text: "3",
+                onPress: onPress,
+              ),
+            ],
+          )),
+          new Container(height:1),
+          new Expanded(
+              child: new Row(
+            children: <Widget>[
+              new NumberKey(
+                text: "4",
+                onPress: onPress,
+              ),
+              new NumberKey(
+                text: "5",
+                onPress: onPress,
+              ),
+              new NumberKey(
+                text: "6",
+                onPress: onPress,
+              ),
+              new NumberKey(
+                text: "7",
+                onPress: onPress,
+              ),
+            ],
+          )),
+          new Container(height:1),
+          new Expanded(
+              child: new Row(
+            children: <Widget>[
+              new NumberKey(
+                text: "8",
+                onPress: onPress,
+              ),
+              new NumberKey(
+                text: "9",
+                onPress: onPress,
+              ),
+              new NumberKey(
+                text: "A",
+                onPress: onPress,
+              ),
+              new NumberKey(
+                text: "B",
+                onPress: onPress,
+              ),
+            ],
+          )),
+          new Container(height:1),
+          new Expanded(
+              child: new Row(
+            children: <Widget>[
+              new NumberKey(
+                text: "C",
+                onPress: onPress,
+              ),
+              new NumberKey(
+                text: "D",
+                onPress: onPress,
+              ),
+              new NumberKey(
+                text: "E",
+                onPress: onPress,
+              ),
+              new NumberKey(
+                text: "F",
+                onPress: onPress,
+              ),
+            ],
+          )),
+          new Container(height:1),
+          new Expanded(
+              child: new Row(
+            children: <Widget>[
+              new NumberKey(
+                text: "FF",
+                onPress: onPress,
+              ),
+              new NumberKey(
+                text: "00",
+                onPress: onPress,
+              ),
+              new NumberKey(
+                text: "X",
+                onPress: onPress,
+              ),
+            ],
+          )),
         ],
-      )),
-
-      new Expanded(child: new Row(
-        children: <Widget>[
-
-          new NumberKey(text: "5",onPress: onPress,),
-          new NumberKey(text: "6",onPress: onPress,),
-          new NumberKey(text: "7",onPress: onPress,),
-          new NumberKey(text: "8",onPress: onPress,),
-
-        ],
-      )),
-      new Expanded(child: new Row(
-        children: <Widget>[
-
-          new NumberKey(text: "9",onPress: onPress,),
-          new NumberKey(text: "0",onPress: onPress,),
-          new NumberKey(text: "a",onPress: onPress,),
-          new NumberKey(text: "b",onPress: onPress,),
-
-        ],
-      )),
-
-      new Expanded(child: new Row(
-        children: <Widget>[
-
-          new NumberKey(text: "c",onPress: onPress,),
-          new NumberKey(text: "d",onPress: onPress,),
-          new NumberKey(text: "e",onPress: onPress,),
-          new NumberKey(text: "f",onPress: onPress,),
-
-        ],
-      )),
-    ],
-
-
+      ),
     );
   }
-
 }

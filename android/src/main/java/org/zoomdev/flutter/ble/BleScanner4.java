@@ -16,13 +16,13 @@ class BleScanner4 implements BleScanner, BluetoothAdapter.LeScanCallback {
     @Override
     public void startScan(BluetoothAdapter adapter, BleScannerListener listener) {
         this.listener = listener;
-        adapter.stopLeScan(this);   // 停止扫描
-        adapter.startLeScan(this);  // 开始扫描
+        adapter.stopLeScan(this);
+        adapter.startLeScan(this);
     }
 
     @Override
     public void stopScan(BluetoothAdapter adapter) {
-        adapter.stopLeScan(this);   // 停止扫描
+        adapter.stopLeScan(this);
         listener = null;
     }
 

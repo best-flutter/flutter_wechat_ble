@@ -3,8 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/flutter_wechat_ble.iml" filepath="$PROJECT_DIR$/flutter_wechat_ble.iml" />
-      <module fileurl="file://$PROJECT_DIR$/android/flutter_wechat_ble_android.iml" filepath="$PROJECT_DIR$/android/flutter_wechat_ble_android.iml" />
-      <module fileurl="file://$PROJECT_DIR$/example/android/flutter_wechat_ble_example_android.iml" filepath="$PROJECT_DIR$/example/android/flutter_wechat_ble_example_android.iml" />
     </modules>
   </component>
 </project>

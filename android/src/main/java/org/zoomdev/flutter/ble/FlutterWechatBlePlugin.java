@@ -252,21 +252,26 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
             deviceAdapter = getDeviceAdapter(deviceId);
             deviceAdapter.getServices(new DeviceAdapter.GetServicesListener() {
                 @Override
-                public void onGetServices(List<BluetoothGattService> services, boolean success) {
-                    if (success) {
-                        List arr = new ArrayList();
-                        for (BluetoothGattService service : services) {
-                            Map map = new HashMap();
-                            map.put("uuid", Utils.getUuidOfService(service));
-                            map.put("isPrimary",true);
-                            arr.add(map);
-                        }
-                        Map<String,Object> data = new HashMap<>();
-                        data.put("services",arr);
-                        promise.success(data);
-                    } else {
-                        processError(SYSTEM_ERROR, "Cannot get services", promise);
-                    }
+                public void onGetServices(final List<BluetoothGattService> services, final boolean success) {
+                   registrar.activity().runOnUiThread(new Runnable() {
+                       @Override
+                       public void run() {
+                           if (success) {
+                               List arr = new ArrayList();
+                               for (BluetoothGattService service : services) {
+                                   Map map = new HashMap();
+                                   map.put("uuid", Utils.getUuidOfService(service));
+                                   map.put("isPrimary",true);
+                                   arr.add(map);
+                               }
+                               Map<String,Object> data = new HashMap<>();
+                               data.put("services",arr);
+                               promise.success(data);
+                           } else {
+                               processError(SYSTEM_ERROR, "Cannot get services", promise);
+                           }
+                       }
+                   });
                 }
             });
         } catch (BluetoothException e) {
@@ -302,27 +307,33 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
         promise.success(map);
     }
 
-    private void retToCallback(BluetoothAdapterResult ret, Result promise) {
-        switch (ret) {
-            case BluetoothAdapterResultNotInit:
-                processError(NOT_INIT, "Not initialized", promise);
-                break;
-            case BluetoothAdapterResultDeviceNotFound:
-                processError(NO_DEVICE, "Cannot find the device", promise);
-                break;
-            case BluetoothAdapterResultDeviceNotConnected:
-                processError(NO_CONNECTION, "The device is not connected", promise);
-                break;
-            case BluetoothAdapterResultServiceNotFound:
-                processError(NO_SERVICE, "Cannot find the service", promise);
-                break;
-            case BluetoothAdapterResultCharacteristicsNotFound:
-                processError(NO_CHARACTERISTIC, "Cannot find the characteristic", promise);
-                break;
-            case BluetoothAdapterResultCharacteristicsPropertyNotSupport:
-                processError(PROPERTY_NOT_SUPPOTT, "Property is not supported", promise);
-                break;
-        }
+    private void retToCallback(final BluetoothAdapterResult ret, final Result promise) {
+        this.registrar.activity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                switch (ret) {
+                    case BluetoothAdapterResultNotInit:
+                        processError(NOT_INIT, "Not initialized", promise);
+                        break;
+                    case BluetoothAdapterResultDeviceNotFound:
+                        processError(NO_DEVICE, "Cannot find the device", promise);
+                        break;
+                    case BluetoothAdapterResultDeviceNotConnected:
+                        processError(NO_CONNECTION, "The device is not connected", promise);
+                        break;
+                    case BluetoothAdapterResultServiceNotFound:
+                        processError(NO_SERVICE, "Cannot find the service", promise);
+                        break;
+                    case BluetoothAdapterResultCharacteristicsNotFound:
+                        processError(NO_CHARACTERISTIC, "Cannot find the characteristic", promise);
+                        break;
+                    case BluetoothAdapterResultCharacteristicsPropertyNotSupport:
+                        processError(PROPERTY_NOT_SUPPOTT, "Property is not supported", promise);
+                        break;
+                }
+
+            }
+        });
 
     }
 
@@ -368,68 +379,99 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
     private Result readListener;
 
     @Override
-    public synchronized void onDeviceConnected(DeviceAdapter device) {
-        if (connectListener != null) {
-            Map map = new HashMap();
-            map.put("deviceId", device.getDeviceId());
-            connectListener.success(map);
-            connectListener = null;
-        }
+    public synchronized void onDeviceConnected(final DeviceAdapter device) {
+        this.registrar.activity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (connectListener != null) {
+                    Map map = new HashMap();
+                    map.put("deviceId", device.getDeviceId());
+                    connectListener.success(map);
+                    connectListener = null;
+                }
 
-        dispatchStateChange(device.getDeviceId(), true);
-    }
-
-    @Override
-    public synchronized void onDeviceConnectFailed(DeviceAdapter device) {
-        if (connectListener != null) {
-            processError(CONNECTION_FAIL, "Connect to device failed", connectListener);
-            connectListener = null;
-        }
-
-        dispatchStateChange(device.getDeviceId(), false);
-    }
-
-    @Override
-    public synchronized void onCharacteristicWrite(DeviceAdapter device, BluetoothGattCharacteristic characteristic, boolean success) {
-        if (writeListener != null) {
-            if (success) {
-                writeListener.success(new HashMap<String,Object>());
-            } else {
-                processError(SYSTEM_ERROR, "Write value failed", writeListener);
+                dispatchStateChange(device.getDeviceId(), true);
             }
-            writeListener = null;
-        }
+        });
+
     }
 
     @Override
-    public synchronized void onCharacteristicRead(DeviceAdapter device, BluetoothGattCharacteristic characteristic, boolean success) {
-        if (readListener != null) {
-            if (success) {
-                readListener.success(HexUtil.encodeHex(characteristic.getValue()));
-            } else {
-                processError(SYSTEM_ERROR, "Read value failed", readListener);
+    public synchronized void onDeviceConnectFailed(final DeviceAdapter device) {
+       this.registrar.activity().runOnUiThread(new Runnable() {
+           @Override
+           public void run() {
+               if (connectListener != null) {
+                   processError(CONNECTION_FAIL, "Connect to device failed", connectListener);
+                   connectListener = null;
+               }
+
+               dispatchStateChange(device.getDeviceId(), false);
+           }
+       });
+    }
+
+    @Override
+    public synchronized void onCharacteristicWrite(DeviceAdapter device, BluetoothGattCharacteristic characteristic, final boolean success) {
+        this.registrar.activity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (writeListener != null) {
+                    if (success) {
+                        writeListener.success(new HashMap<String,Object>());
+                    } else {
+                        processError(SYSTEM_ERROR, "Write value failed", writeListener);
+                    }
+                    writeListener = null;
+                }
             }
-            readListener = null;
-        }
+        });
+    }
+
+    @Override
+    public synchronized void onCharacteristicRead(DeviceAdapter device, final BluetoothGattCharacteristic characteristic, final boolean success) {
+       this.registrar.activity().runOnUiThread(new Runnable() {
+           @Override
+           public void run() {
+               if (readListener != null) {
+                   if (success) {
+                       readListener.success(HexUtil.encodeHex(characteristic.getValue()));
+                   } else {
+                       processError(SYSTEM_ERROR, "Read value failed", readListener);
+                   }
+                   readListener = null;
+               }
+           }
+       });
     }
 
 
     @Override
     public synchronized void onCharacteristicChanged(
-            DeviceAdapter device, BluetoothGattCharacteristic characteristic) {
-        Map map = new HashMap();
-        map.put("deviceId", device.getDeviceId());
-        map.put("serviceId", Utils.getUuidOfService(characteristic.getService()));
-        map.put("characteristicId", Utils.getUuidOfCharacteristic(characteristic));
-        map.put("value", HexUtil.encodeHexStr(characteristic.getValue()));
+            final DeviceAdapter device, final BluetoothGattCharacteristic characteristic) {
+       this.registrar.activity().runOnUiThread(new Runnable() {
+           @Override
+           public void run() {
+               Map map = new HashMap();
+               map.put("deviceId", device.getDeviceId());
+               map.put("serviceId", Utils.getUuidOfService(characteristic.getService()));
+               map.put("characteristicId", Utils.getUuidOfCharacteristic(characteristic));
+               map.put("value", HexUtil.encodeHexStr(characteristic.getValue()));
 
-        channel.invokeMethod("valueUpdate", map);
+               channel.invokeMethod("valueUpdate", map);
+           }
+       });
     }
 
 
     @Override
-    public synchronized void onDeviceDisconnected(DeviceAdapter device) {
-        dispatchStateChange(device.getDeviceId(), false);
+    public synchronized void onDeviceDisconnected(final DeviceAdapter device) {
+       this.registrar.activity().runOnUiThread(new Runnable() {
+           @Override
+           public void run() {
+               dispatchStateChange(device.getDeviceId(), false);
+           }
+       });
     }
 
     private void dispatchStateChange(String deviceId, boolean connected) {
@@ -440,29 +482,35 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
     }
 
     @Override
-    public synchronized void onDeviceFound(BluetoothDevice device, int rssi) {
-        Map map = new HashMap();
-        map.put("deviceId", Utils.getDeviceId(device));
-        map.put("name", device.getName() == null ? "" : device.getName());
-        channel.invokeMethod("foundDevice", map);
+    public synchronized void onDeviceFound(final BluetoothDevice device, int rssi) {
+       this.registrar.activity().runOnUiThread(new Runnable() {
+           @Override
+           public void run() {
+               Map map = new HashMap();
+               map.put("deviceId", Utils.getDeviceId(device));
+               map.put("name", device.getName() == null ? "" : device.getName());
+               channel.invokeMethod("foundDevice", map);
+           }
+       });
     }
 
     @Override
     public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == REQUEST_CODE_ACCESS_COARSE_LOCATION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                //用户允许改权限，0表示允许，-1表示拒绝 PERMISSION_GRANTED = 0， PERMISSION_DENIED = -1
-                //permission was granted, yay! Do the contacts-related task you need to do.
-                //这里进行授权被允许的处理
-            } else {
-                //permission denied, boo! Disable the functionality that depends on this permission.
-                //这里进行权限被拒绝的处理
-            }
-
-            return true;
-        } else {
-
-            return false;
-        }
+//        if (requestCode == REQUEST_CODE_ACCESS_COARSE_LOCATION) {
+//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                //用户允许改权限，0表示允许，-1表示拒绝 PERMISSION_GRANTED = 0， PERMISSION_DENIED = -1
+//                //permission was granted, yay! Do the contacts-related task you need to do.
+//                //这里进行授权被允许的处理
+//            } else {
+//                //permission denied, boo! Disable the functionality that depends on this permission.
+//                //这里进行权限被拒绝的处理
+//            }
+//
+//            return true;
+//        } else {
+//
+//            return false;
+//        }
+        return false;
     }
 }
