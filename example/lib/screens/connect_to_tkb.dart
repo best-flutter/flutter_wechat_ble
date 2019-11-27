@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_wechat_ble_example/services/TkbDeviceConfig.dart';
 import 'package:flutter_wechat_ble/flutter_wechat_ble.dart';
 
-
 class ConnectToTkb extends StatefulWidget {
   @override
   _ConnectToTkbState createState() => _ConnectToTkbState();
 }
 
 class _ConnectToTkbState extends State<ConnectToTkb> {
- static DeviceConfig config = new TbkDeviceConfig();
-  static BluetoothService bluetoothService = new BluetoothService(configs: [config]);
+  static DeviceConfig config = new TbkDeviceConfig();
+  static BluetoothService bluetoothService =
+      new BluetoothService(configs: [config]);
 
   List<String> messages = [];
 
@@ -77,7 +77,7 @@ class _ConnectToTkbState extends State<ConnectToTkb> {
         ],
       ),
       body: new ListView(
-        children:messages.map((text)=>new Text(text)).toList(),
+        children: messages.map((text) => new Text(text)).toList(),
       ),
     );
   }

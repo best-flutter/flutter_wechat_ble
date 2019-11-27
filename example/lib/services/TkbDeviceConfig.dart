@@ -4,9 +4,9 @@ import 'package:flutter_wechat_ble/bluetooth_service.dart';
 class TbkDeviceConfig extends BleDeviceConfig {
   TbkDeviceConfig()
       : super(
-      serviceId: "0000FFF0-0000-1000-8000-00805F9B34FB",
-      notifyId: "0000FFF2-0000-1000-8000-00805F9B34FB",
-      writeId: "0000FFF1-0000-1000-8000-00805F9B34FB");
+            serviceId: "0000FFF0-0000-1000-8000-00805F9B34FB",
+            notifyId: "0000FFF2-0000-1000-8000-00805F9B34FB",
+            writeId: "0000FFF1-0000-1000-8000-00805F9B34FB");
 
   @override
   bool accept(BleDevice device) {

@@ -222,7 +222,8 @@ class BluetoothServiceBleDevice extends BluetoothServiceDevice {
     // open connection
     await FlutterWechatBle.createBLEConnection(deviceId: deviceId);
     // get services
-    List<BleService> services = await FlutterWechatBle.getBLEDeviceServices(deviceId: deviceId);
+    List<BleService> services =
+        await FlutterWechatBle.getBLEDeviceServices(deviceId: deviceId);
     for (BleService service in services) {
       List<BleCharacteristic> characterisrics =
           await FlutterWechatBle.getBLEDeviceCharacteristics(
@@ -231,7 +232,6 @@ class BluetoothServiceBleDevice extends BluetoothServiceDevice {
 
     await setNotify(
         serviceId: _config.serviceId, characteristicId: _config.notifyId);
-
   }
 
   // close the device
@@ -269,7 +269,7 @@ class BluetoothServiceBleDevice extends BluetoothServiceDevice {
   Timer _timer;
   // write the value to the devices the value must be a whole package
   // we handle the package logic in DeviceConfig {@see DeviceConfig}
-  Future<HexValue> write(var value)  {
+  Future<HexValue> write(var value) {
     if (_completer != null) {
       throw new AssertionError(
           "Cannot send another data when data is not completed");
@@ -370,7 +370,7 @@ class BluetoothService {
     }
   }
 
-  void shutdownDevice(String deviceId) async{
+  void shutdownDevice(String deviceId) async {
     BluetoothServiceDevice serviceDevice = getDeviceById(deviceId);
     if (serviceDevice == null) {
       throw new AssertionError("Cannot find device by id :${deviceId}");
