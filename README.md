@@ -90,6 +90,12 @@ ios需要注意的是在info.plist中增加权限:
 <string>请求访问蓝牙</string>
 ```
 
+### 查看蓝牙是否可用
+
+```
+static FlutterWechatBle.getBluetoothAdapterState()
+```
+
 
 #### 打开蓝牙
 
