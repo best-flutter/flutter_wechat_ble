@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_wechat_ble_example/screens/ble_helper.dart';
 import 'package:flutter_wechat_ble_example/screens/connect_to_tkb.dart';
+import 'package:flutter_wechat_ble_example/screens/device_list.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -35,6 +36,18 @@ class _HomeState extends State<Home> {
                   new MaterialPageRoute(builder: (BuildContext context) {
                 return new ConnectToTkb();
               }));
+            },
+          ),
+          new InkWell(
+            child: new Padding(
+              padding: new EdgeInsets.all(10.0),
+              child: new Text("Manage devices"),
+            ),
+            onTap: () {
+              Navigator.push(context,
+                  new MaterialPageRoute(builder: (BuildContext context) {
+                    return new DeviceList();
+                  }));
             },
           ),
         ],

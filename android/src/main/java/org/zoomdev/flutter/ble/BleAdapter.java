@@ -1,17 +1,14 @@
 package org.zoomdev.flutter.ble;
 
-import android.Manifest;
 import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Build;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,10 +22,8 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
     private final BleScanner scanner;
     private Context context;
     private BluetoothAdapter mBluetoothAdapter;
-    private BluetoothGattService mLeDeviceListAdapter;
-    private BluetoothGatt mBluetoothGatt;
-    private Map<String, DeviceAdapter> connectedDevcie;
-    private Map<String, BluetoothDevice> deviceMap;
+    private final Map<String, DeviceAdapter> connectedDevices;
+    private final Map<String, DeviceAdapter> deviceMap;
     private BleListener listener;
 
     public BleAdapter(Context context) {
@@ -38,10 +33,26 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
         } else {
             scanner = new BleScanner4();
         }
+        deviceMap = new ConcurrentHashMap<String, DeviceAdapter>();
+        connectedDevices = new ConcurrentHashMap<String, DeviceAdapter>();
     }
 
     public synchronized void setListener(BleListener listener) {
         this.listener = listener;
+    }
+
+
+    public boolean isAvaliable(){
+        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        if (bluetoothManager == null) {
+            return false;
+        }
+        BluetoothAdapter adapter = bluetoothManager.getAdapter();
+        if (adapter == null) {
+            //不支持
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -66,8 +77,7 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
             return false;
         }
 
-        deviceMap = new ConcurrentHashMap<String, BluetoothDevice>();
-        connectedDevcie = new ConcurrentHashMap<String, DeviceAdapter>();
+
         this.mBluetoothAdapter = adapter;
 
         if (!adapter.enable()) {
@@ -81,45 +91,40 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
      * 关闭蓝牙，注意这个方法需要和open互斥
      */
     public synchronized void close() {
-        if (connectedDevcie != null) {
-            for (Map.Entry<String, DeviceAdapter> entry : connectedDevcie.entrySet()) {
-                DeviceAdapter adapter = entry.getValue();
-                adapter.disconnect();
-            }
-            connectedDevcie.clear();
-            connectedDevcie = null;
+        for (Map.Entry<String, DeviceAdapter> entry : connectedDevices.entrySet()) {
+            DeviceAdapter adapter = entry.getValue();
+            adapter.disconnect();
         }
-        deviceMap = null;
+        connectedDevices.clear();
+        deviceMap.clear();
         mBluetoothAdapter = null;
     }
 
 
     public synchronized BluetoothAdapterResult startScan() {
-
-
         if (mBluetoothAdapter == null) {
             return BluetoothAdapterResult.BluetoothAdapterResultNotInit;
         }
+        deviceMap.clear();
         scanner.startScan(mBluetoothAdapter, this);
+        discovering = true;
         return BluetoothAdapterResult.BluetoothAdapterResultOk;
     }
 
 
     public synchronized void stopScan() {
         scanner.stopScan(mBluetoothAdapter);
+        discovering = false;
     }
 
 
-    public synchronized BluetoothDevice getDevice(String deviceId) {
-        if(deviceMap==null){
-            return null;
-        }
+    public synchronized DeviceAdapter getDevice(String deviceId) {
         return deviceMap.get(deviceId);
     }
 
 
     public synchronized DeviceAdapter getConnectedDevice(String deviceId) {
-        return connectedDevcie.get(deviceId);
+        return connectedDevices.get(deviceId);
     }
 
 
@@ -130,7 +135,7 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
      * @return
      */
     public synchronized boolean isConnected(String deviceId) {
-        return connectedDevcie.containsKey(deviceId);
+        return connectedDevices.containsKey(deviceId);
 
     }
 
@@ -139,14 +144,17 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
             return BluetoothAdapterResult.BluetoothAdapterResultNotInit;
         }
 
-        BluetoothDevice device = getDevice(deviceId);
+        DeviceAdapter device = getDevice(deviceId);
         if (device == null) {
             return BluetoothAdapterResult.BluetoothAdapterResultDeviceNotFound;
         }
 
-        DeviceAdapter adapter = connectedDevcie.get(deviceId);
+        DeviceAdapter adapter = connectedDevices.get(deviceId);
         if (adapter != null) {
             adapter.disconnect();
+            //通知一下
+            connectedDevices.remove(deviceId);
+
             return BluetoothAdapterResult.BluetoothAdapterResultOk;
         }
 
@@ -158,24 +166,26 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
             return BluetoothAdapterResult.BluetoothAdapterResultNotInit;
         }
 
-        BluetoothDevice device = getDevice(deviceId);
+        DeviceAdapter device = getDevice(deviceId);
         if (device == null) {
             return BluetoothAdapterResult.BluetoothAdapterResultDeviceNotFound;
         }
 
-        DeviceAdapter adapter = connectedDevcie.get(deviceId);
-        if (adapter != null) {
+        DeviceAdapter connectedDevice = connectedDevices.get(deviceId);
+        if (connectedDevice != null) {
             //直接返回结果,表示在缓存里面已经有了
-            if (adapter.isConnected() && listener != null) {
-                listener.onDeviceConnected(adapter);
+            if (connectedDevice.isConnected()) {
+                if(listener!=null){
+                    listener.onDeviceConnected(connectedDevice);
+                }
+            }else{
+                connectedDevice.connect(context);
             }
 
             return BluetoothAdapterResult.BluetoothAdapterResultOk;
         }
         //如果已经在连接了,就不用连接了
-        adapter = new DeviceAdapter(device, this);
-        connectedDevcie.put(deviceId, adapter);
-        adapter.connect(context);
+        device.connect(context);
 
         return BluetoothAdapterResult.BluetoothAdapterResultOk;
 
@@ -185,18 +195,22 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
     public synchronized void onDeviceFound(BluetoothDevice device, int rssi) {
         String uuid = Utils.getDeviceId(device);
 
-        if (!deviceMap.containsKey(uuid)) {
-            //通知一下
+        if(!deviceMap.containsKey(uuid)){
+            DeviceAdapter deviceAdapter = new DeviceAdapter(device,this);
+            deviceAdapter.setRssi(rssi);
+            deviceMap.put(uuid, deviceAdapter);
             if (listener != null) {
-                listener.onDeviceFound(device, rssi);
+                listener.onDeviceFound(deviceAdapter);
             }
         }
-        deviceMap.put(uuid, device);
+
+
     }
 
 
     @Override
     public synchronized void onDisconnected(DeviceAdapter device) {
+        connectedDevices.remove(device.getDeviceId());
         if (listener != null) {
             listener.onDeviceDisconnected(device);
         }
@@ -204,6 +218,7 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
 
     @Override
     public synchronized void onConnected(DeviceAdapter device) {
+        connectedDevices.put(device.getDeviceId(),device);
         if (listener != null) {
             listener.onDeviceConnected(device);
         }
@@ -239,4 +254,16 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
     }
 
 
+    public synchronized Collection<DeviceAdapter> getDevices() {
+        return deviceMap.values();
+    }
+
+    public synchronized Collection<DeviceAdapter> getConnectedDevices(){
+        return connectedDevices.values();
+    }
+
+    private boolean discovering;
+    public synchronized boolean isDiscovering() {
+        return discovering;
+    }
 }

@@ -15,7 +15,7 @@ public interface BleListener {
      * @param device
      * @param rssi
      */
-    void onDeviceFound(BluetoothDevice device, int rssi);
+    void onDeviceFound(DeviceAdapter device);
 
 
     void onDeviceConnected(DeviceAdapter device);

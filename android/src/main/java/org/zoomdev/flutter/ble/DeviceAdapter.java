@@ -25,6 +25,16 @@ class DeviceAdapter extends BluetoothGattCallback {
     private boolean connected;
     private BluetoothGatt gatt;
 
+    public int getRssi() {
+        return rssi;
+    }
+
+    public void setRssi(int rssi) {
+        this.rssi = rssi;
+    }
+
+    private int rssi;
+
     private final BluetoothDevice device;
     private List<BluetoothGattService> services;
     private final DeviceListener listener;
@@ -47,7 +57,7 @@ class DeviceAdapter extends BluetoothGattCallback {
     @Override
     public synchronized void onConnectionStateChange(BluetoothGatt gatt, final int status, final int newState) {
         super.onConnectionStateChange(gatt, status, newState);
-        Log.d("BLE","onConnectionStateChange");
+        Log.d("BLE","onConnectionStateChange " + status + " " + newState);
         if (status != BluetoothGatt.GATT_SUCCESS) { // 连接失败判断
             //连接失败
             connected = false;
@@ -68,7 +78,10 @@ class DeviceAdapter extends BluetoothGattCallback {
             return;
         }
         if (newState == BluetoothProfile.STATE_DISCONNECTED) {  // 连接断开判断
-            disconnect();
+            if(this.gatt!=null){
+                this.gatt.close();
+                this.gatt = null;
+            }
             connected = false;
             DeviceListener listener = getListener();
             if (listener != null) {
@@ -181,8 +194,7 @@ class DeviceAdapter extends BluetoothGattCallback {
     public synchronized void disconnect() {
         try {
             if (this.gatt != null) {
-                this.gatt.close();
-                this.gatt = null;
+                this.gatt.disconnect();
             }
         } catch (Throwable t) {
 
@@ -198,18 +210,21 @@ class DeviceAdapter extends BluetoothGattCallback {
         return connected;
     }
 
-    public void connect(Context context) {
+    public synchronized void connect(Context context) {
         // We want to directly connect to the device, so we are setting the autoConnect
         // parameter to false.
+        if(this.gatt!=null){
+            Log.d("BLE","gatt is not null");
+        }
         this.gatt = device.connectGatt(context, false, this);
 
     }
 
-    public List<BluetoothGattService> getServices() {
+    public synchronized List<BluetoothGattService> getServices() {
         return services;
     }
 
-    public String getName() {
+    public synchronized String getName() {
         return device.getName();
     }
 
@@ -233,11 +248,11 @@ class DeviceAdapter extends BluetoothGattCallback {
     }
 
 
-    public List<BluetoothGattCharacteristic> getCharacteristics(BluetoothGattService service) {
+    public synchronized List<BluetoothGattCharacteristic> getCharacteristics(BluetoothGattService service) {
         return service.getCharacteristics();
     }
 
-    public void read(String serviceId, String characteristicId) throws BluetoothException {
+    public synchronized void read(String serviceId, String characteristicId) throws BluetoothException {
         BluetoothGattService bluetoothGattService = getService(serviceId);
         if (bluetoothGattService == null) {
             throw new BluetoothException(BluetoothAdapterResult.BluetoothAdapterResultServiceNotFound);
@@ -250,7 +265,7 @@ class DeviceAdapter extends BluetoothGattCallback {
 
     }
 
-    public void write(String serviceId, String characteristicId, byte[] bytes) throws BluetoothException {
+    public synchronized void write(String serviceId, String characteristicId, byte[] bytes) throws BluetoothException {
         BluetoothGattService bluetoothGattService = getService(serviceId);
         if (bluetoothGattService == null) {
             throw new BluetoothException(BluetoothAdapterResult.BluetoothAdapterResultServiceNotFound);
@@ -263,10 +278,13 @@ class DeviceAdapter extends BluetoothGattCallback {
         this.gatt.writeCharacteristic(characteristic);
     }
 
-    public void setNotify(String serviceId, String characteristicId, boolean notify) throws BluetoothException {
+    public synchronized void setNotify(String serviceId, String characteristicId, boolean notify) throws BluetoothException {
         BluetoothGattService bluetoothGattService = getService(serviceId);
         if (bluetoothGattService == null) {
             throw new BluetoothException(BluetoothAdapterResult.BluetoothAdapterResultServiceNotFound);
+        }
+        if(this.gatt == null){
+            throw new BluetoothException(BluetoothAdapterResult.BluetoothAdapterResultDeviceNotConnected);
         }
         BluetoothGattCharacteristic characteristic = bluetoothGattService.getCharacteristic(UUID.fromString(characteristicId));
         if (characteristic == null) {

@@ -1,11 +1,20 @@
 import 'package:flutter_wechat_ble/flutter_wechat_ble.dart';
 import 'dart:async';
 
+typedef void OnServiceDeviceStateChangeCallback(BluetoothServiceDevice device);
+typedef void OnServiceDeviceFoundCallback(BluetoothServiceDevice device);
+
+
+const int kDataTimeout = 500;
+const int kConnectTimeout = 10;
+
+
 abstract class BleDeviceConfig extends DeviceConfig {
   //the default service id want to communicate
   final String serviceId;
 
   //the default notify characteristics id
+  // 设置之后，将会自动将本id对应的特征值设置通知模式
   final String notifyId;
 
   //the default write characteristics id
@@ -16,8 +25,8 @@ abstract class BleDeviceConfig extends DeviceConfig {
       this.notifyId,
       this.writeId,
       bool checkServicesAndCharacteristics = true,
-      Duration connectTimeout = const Duration(seconds: 10),
-      Duration dataTimeout = const Duration(milliseconds: 200)})
+      Duration connectTimeout = const Duration(seconds: kConnectTimeout),
+      Duration dataTimeout = const Duration(milliseconds: kDataTimeout)})
       : super(
             checkServicesAndCharacteristics: checkServicesAndCharacteristics,
             connectTimeout: connectTimeout,
@@ -42,8 +51,8 @@ abstract class DeviceConfig {
 
   DeviceConfig(
       {this.checkServicesAndCharacteristics = true,
-      this.connectTimeout = const Duration(seconds: 10),
-      this.dataTimeout = const Duration(milliseconds: 200)});
+      this.connectTimeout,
+      this.dataTimeout});
 
   // is the device acceptable?
   bool accept(BleDevice device);
@@ -65,10 +74,17 @@ abstract class DeviceConfig {
 
 ///
 abstract class BluetoothServiceDevice {
+
+
   final BleDevice device;
+
+  //the device config
   final DeviceConfig config;
 
-  BluetoothServiceDevice({this.device, this.config});
+  // this value will be changed when connection state changed
+  bool connected;
+
+  BluetoothServiceDevice({this.device, this.config,this.connected = false});
 
   void onReceiveData(BleValue value);
 
@@ -300,7 +316,6 @@ class BluetoothServiceBleDevice extends BluetoothServiceDevice {
   }
 }
 
-typedef void OnServiceDeviceFoundCallback(BluetoothServiceDevice device);
 
 class BluetoothService {
   final List<DeviceConfig> _configs;
@@ -321,6 +336,18 @@ class BluetoothService {
     FlutterWechatBle.onBluetoothDeviceFound(_onRowDeviceFound);
     FlutterWechatBle.onBLECharacteristicValueChange(
         _onBLECharacteristicValueChange);
+    FlutterWechatBle.onBLEConnectionStateChange(_onBLEConnectionStateChange);
+  }
+
+  void _onBLEConnectionStateChange(String deviceId,bool connected){
+    BluetoothServiceDevice device = getDeviceById(deviceId);
+    if(device==null){
+      throw new AssertionError("Cannot find device :$deviceId");
+    }
+    device.connected = connected;
+    if(_onServiceDeviceStateChangeCallback!=null){
+      _onServiceDeviceStateChangeCallback(device);
+    }
   }
 
   void stopScan() async {
@@ -328,9 +355,14 @@ class BluetoothService {
   }
 
   OnServiceDeviceFoundCallback _onServiceDeviceFoundCallback;
+  OnServiceDeviceStateChangeCallback _onServiceDeviceStateChangeCallback;
 
   void onServiceDeviceFound(OnServiceDeviceFoundCallback callback) {
     _onServiceDeviceFoundCallback = callback;
+  }
+
+  void onServiceDeviceStateChange(OnServiceDeviceStateChangeCallback callback) {
+    _onServiceDeviceStateChangeCallback = callback;
   }
 
   void _onBLECharacteristicValueChange(BleValue value) {
@@ -346,12 +378,14 @@ class BluetoothService {
     return _serviceDevices[deviceId];
   }
 
+  /// startup device
   dynamic startupDevice(String deviceId) async {
     BluetoothServiceDevice serviceDevice = getDeviceById(deviceId);
     if (serviceDevice == null) {
       throw new AssertionError("Cannot find device by id :${deviceId}");
     }
     await serviceDevice.startup();
+    serviceDevice.connected = true;
     return await serviceDevice.config.onStartup(this, serviceDevice);
   }
 
@@ -379,9 +413,11 @@ class BluetoothService {
     try {
       await serviceDevice.close();
     } catch (e) {
-      await serviceDevice.close();
+
     } finally {
+      serviceDevice.connected = false;
       await serviceDevice.config.onClose(this, serviceDevice);
+
     }
   }
 

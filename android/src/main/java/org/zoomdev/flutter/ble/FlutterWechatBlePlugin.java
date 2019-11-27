@@ -2,12 +2,15 @@ package org.zoomdev.flutter.ble;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
@@ -38,9 +41,32 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
         FlutterWechatBlePlugin plugin = new FlutterWechatBlePlugin(registrar, channel);
         channel.setMethodCallHandler(plugin);
     }
-
+    private static MyHandler hander = new MyHandler(Looper.getMainLooper());
 
     private MethodChannel channel;
+    protected static class MyHandler extends Handler {
+        public MyHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            Runnable listener = (Runnable) msg.obj;
+            if(listener instanceof Activity){
+                if(((Activity)listener).isFinishing()){
+                    return;
+                }
+            }
+            listener.run();
+        }
+    }
+
+    private void runOnUIThread(Runnable runnable){
+        Message msg = Message.obtain();
+        msg.obj = runnable;
+        hander.sendMessage(msg);
+    }
+
 
     @Override
     public void onMethodCall(MethodCall call, Result result) {
@@ -67,6 +93,25 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
             writeBLECharacteristicValue((Map) call.arguments, result);
         } else if ("readBLECharacteristicValue".equals(method)) {
             readBLECharacteristicValue((Map) call.arguments, result);
+        } else if("getBluetoothDevices".equals(method)){
+            List<Map> list = new ArrayList<>();
+            for(DeviceAdapter device : adapter.getDevices()){
+                deviceToMap(device);
+            }
+            result.success(list);
+
+        }else if("getConnectedBluetoothDevices".equals(method)){
+            List<Map> list = new ArrayList<>();
+            for(DeviceAdapter device : adapter.getConnectedDevices()){
+                deviceToMap(device);
+            }
+            result.success(list);
+        }else if("getBluetoothAdapterState".equals(method)){
+            Map map = new HashMap();
+            map.put("discovering",adapter.isAvaliable());
+            map.put("available",adapter.isDiscovering());
+
+            result.success(map);
         } else {
             result.notImplemented();
         }
@@ -80,10 +125,13 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
         this.registrar = registrar;
         adapter = new BleAdapter(registrar.context().getApplicationContext());
         adapter.setListener(this);
+        adapter.getDevices();
         this.channel = channel;
 
         registrar.addRequestPermissionsResultListener(this);
     }
+
+
 
     public static final String NOT_INIT = "10000";
     public static final String NOT_AVALIABLE = "10001";
@@ -124,6 +172,7 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
                 ActivityCompat.requestPermissions(registrar.activity(),
                         new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                         REQUEST_CODE_ACCESS_COARSE_LOCATION);
+                return;
             }
         }
 
@@ -150,7 +199,7 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
         }
         DeviceAdapter deviceAdapter = null;
         try {
-            deviceAdapter = getDeviceAdapter(deviceId);
+            deviceAdapter = getConnectedDevice(deviceId);
             String serviceId = (String) data.get("serviceId");
             String characteristicId = (String) data.get("characteristicId");
             readListener = promise;
@@ -168,7 +217,7 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
         }
         DeviceAdapter deviceAdapter = null;
         try {
-            deviceAdapter = getDeviceAdapter(deviceId);
+            deviceAdapter = getConnectedDevice(deviceId);
             String serviceId = (String) data.get("serviceId");
             String characteristicId = (String) data.get("characteristicId");
             String value = (String) data.get("value");
@@ -180,7 +229,7 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
         } catch (BluetoothException e) {
 
            // writeListener = null;
-            Log.d("BLE", String.format("write value error %s",e.getMessage() ) );
+            Log.d("BLE", String.format("write value error %s %s",String.valueOf(e.ret),e.getMessage() ) );
             retToCallback(e.ret, promise);
         }
 
@@ -197,7 +246,7 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
         }
         DeviceAdapter deviceAdapter = null;
         try {
-            deviceAdapter = getDeviceAdapter(deviceId);
+            deviceAdapter = getConnectedDevice(deviceId);
             if (deviceAdapter.getServices() == null) {
                 processError(SYSTEM_ERROR, "Call getBLEDeviceServices first", promise);
                 return;
@@ -232,11 +281,7 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
         }
     }
 
-    protected DeviceAdapter getDeviceAdapter(String deviceId) throws BluetoothException {
-        BluetoothDevice device = adapter.getDevice(deviceId);
-        if (device == null) {
-            throw new BluetoothException(BluetoothAdapterResult.BluetoothAdapterResultDeviceNotFound);
-        }
+    protected DeviceAdapter getConnectedDevice(String deviceId) throws BluetoothException {
         DeviceAdapter deviceAdapter = adapter.getConnectedDevice(deviceId);
         if (deviceAdapter == null) {
             throw new BluetoothException(BluetoothAdapterResult.BluetoothAdapterResultDeviceNotConnected);
@@ -255,11 +300,11 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
         }
         DeviceAdapter deviceAdapter = null;
         try {
-            deviceAdapter = getDeviceAdapter(deviceId);
+            deviceAdapter = getConnectedDevice(deviceId);
             deviceAdapter.getServices(new DeviceAdapter.GetServicesListener() {
                 @Override
                 public void onGetServices(final List<BluetoothGattService> services, final boolean success) {
-                   registrar.activity().runOnUiThread(new Runnable() {
+                   runOnUIThread(new Runnable() {
                        @Override
                        public void run() {
                            if (success) {
@@ -295,7 +340,7 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
         }
         DeviceAdapter deviceAdapter = null;
         try {
-            deviceAdapter = getDeviceAdapter(deviceId);
+            deviceAdapter = getConnectedDevice(deviceId);
             String serviceId = (String) data.get("serviceId");
             String characteristicId = (String) data.get("characteristicId");
             boolean notify = (Boolean) data.get("state");
@@ -306,40 +351,39 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
         }
     }
 
-    private void processError(String code, String message, Result promise) {
-        Map map = new HashMap();
-        map.put("code", code);
-        map.put("message", message);
-        promise.success(map);
+    private void processError(final String code, final String message, final Result promise) {
+       runOnUIThread(new Runnable() {
+           @Override
+           public void run() {
+               Map map = new HashMap();
+               map.put("code", code);
+               map.put("message", message);
+               promise.success(map);
+           }
+       });
     }
 
     private void retToCallback(final BluetoothAdapterResult ret, final Result promise) {
-        this.registrar.activity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                switch (ret) {
-                    case BluetoothAdapterResultNotInit:
-                        processError(NOT_INIT, "Not initialized", promise);
-                        break;
-                    case BluetoothAdapterResultDeviceNotFound:
-                        processError(NO_DEVICE, "Cannot find the device", promise);
-                        break;
-                    case BluetoothAdapterResultDeviceNotConnected:
-                        processError(NO_CONNECTION, "The device is not connected", promise);
-                        break;
-                    case BluetoothAdapterResultServiceNotFound:
-                        processError(NO_SERVICE, "Cannot find the service", promise);
-                        break;
-                    case BluetoothAdapterResultCharacteristicsNotFound:
-                        processError(NO_CHARACTERISTIC, "Cannot find the characteristic", promise);
-                        break;
-                    case BluetoothAdapterResultCharacteristicsPropertyNotSupport:
-                        processError(PROPERTY_NOT_SUPPOTT, "Property is not supported", promise);
-                        break;
-                }
-
-            }
-        });
+        switch (ret) {
+            case BluetoothAdapterResultNotInit:
+                processError(NOT_INIT, "Not initialized", promise);
+                break;
+            case BluetoothAdapterResultDeviceNotFound:
+                processError(NO_DEVICE, "Cannot find the device", promise);
+                break;
+            case BluetoothAdapterResultDeviceNotConnected:
+                processError(NO_CONNECTION, "The device is not connected", promise);
+                break;
+            case BluetoothAdapterResultServiceNotFound:
+                processError(NO_SERVICE, "Cannot find the service", promise);
+                break;
+            case BluetoothAdapterResultCharacteristicsNotFound:
+                processError(NO_CHARACTERISTIC, "Cannot find the characteristic", promise);
+                break;
+            case BluetoothAdapterResultCharacteristicsPropertyNotSupport:
+                processError(PROPERTY_NOT_SUPPOTT, "Property is not supported", promise);
+                break;
+        }
 
     }
 
@@ -386,25 +430,25 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
 
     @Override
     public synchronized void onDeviceConnected(final DeviceAdapter device) {
-        this.registrar.activity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (connectListener != null) {
-                    Map map = new HashMap();
-                    map.put("deviceId", device.getDeviceId());
-                    connectListener.success(map);
-                    connectListener = null;
-                }
+       runOnUIThread(new Runnable() {
+           @Override
+           public void run() {
+               if (connectListener != null) {
+                   Map map = new HashMap();
+                   map.put("deviceId", device.getDeviceId());
+                   connectListener.success(map);
+                   connectListener = null;
+               }
 
-                dispatchStateChange(device.getDeviceId(), true);
-            }
-        });
+               dispatchStateChange(device.getDeviceId(), true);
+           }
+       });
 
     }
 
     @Override
     public synchronized void onDeviceConnectFailed(final DeviceAdapter device) {
-       this.registrar.activity().runOnUiThread(new Runnable() {
+       runOnUIThread(new Runnable() {
            @Override
            public void run() {
                if (connectListener != null) {
@@ -419,86 +463,78 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
 
     @Override
     public synchronized void onCharacteristicWrite(DeviceAdapter device, BluetoothGattCharacteristic characteristic, final boolean success) {
-        this.registrar.activity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d("BLE","onCharacteristicWrite");
-                if (writeListener != null) {
-                    if (success) {
-                        writeListener.success(new HashMap<String,Object>());
-                    } else {
-                        processError(SYSTEM_ERROR, "Write value failed", writeListener);
-                    }
-                    writeListener = null;
-                }
+        Log.d("BLE","onCharacteristicWrite");
+        if (writeListener != null) {
+            if (success) {
+                writeListener.success(new HashMap<String,Object>());
+            } else {
+                processError(SYSTEM_ERROR, "Write value failed", writeListener);
             }
-        });
+            writeListener = null;
+        }
     }
 
     @Override
     public synchronized void onCharacteristicRead(DeviceAdapter device, final BluetoothGattCharacteristic characteristic, final boolean success) {
-       this.registrar.activity().runOnUiThread(new Runnable() {
-           @Override
-           public void run() {
-               if (readListener != null) {
-                   if (success) {
-                       readListener.success(HexUtil.encodeHex(characteristic.getValue()));
-                   } else {
-                       processError(SYSTEM_ERROR, "Read value failed", readListener);
-                   }
-                   readListener = null;
-               }
-           }
-       });
+        if (readListener != null) {
+            if (success) {
+                readListener.success(HexUtil.encodeHex(characteristic.getValue()));
+            } else {
+                processError(SYSTEM_ERROR, "Read value failed", readListener);
+            }
+            readListener = null;
+        }
     }
 
 
     @Override
     public synchronized void onCharacteristicChanged(
             final DeviceAdapter device, final BluetoothGattCharacteristic characteristic) {
-       this.registrar.activity().runOnUiThread(new Runnable() {
-           @Override
-           public void run() {
-               Map map = new HashMap();
-               map.put("deviceId", device.getDeviceId());
-               map.put("serviceId", Utils.getUuidOfService(characteristic.getService()));
-               map.put("characteristicId", Utils.getUuidOfCharacteristic(characteristic));
-               map.put("value", HexUtil.encodeHexStr(characteristic.getValue()));
+      runOnUIThread(new Runnable() {
+          @Override
+          public void run() {
+              Map map = new HashMap();
+              map.put("deviceId", device.getDeviceId());
+              map.put("serviceId", Utils.getUuidOfService(characteristic.getService()));
+              map.put("characteristicId", Utils.getUuidOfCharacteristic(characteristic));
+              map.put("value", HexUtil.encodeHexStr(characteristic.getValue()));
 
-               channel.invokeMethod("valueUpdate", map);
-           }
-       });
+              channel.invokeMethod("valueUpdate", map);
+          }
+      });
     }
 
 
     @Override
     public synchronized void onDeviceDisconnected(final DeviceAdapter device) {
-       this.registrar.activity().runOnUiThread(new Runnable() {
-           @Override
-           public void run() {
-               dispatchStateChange(device.getDeviceId(), false);
-           }
-       });
+        dispatchStateChange(device.getDeviceId(), false);
     }
 
-    private void dispatchStateChange(String deviceId, boolean connected) {
-        Map map = new HashMap();
-        map.put("deviceId", deviceId);
-        map.put("connected", connected);
-        channel.invokeMethod("stateChange", map);
+    private void dispatchStateChange(final String deviceId, final boolean connected) {
+        runOnUIThread(new Runnable() {
+            @Override
+            public void run() {
+                Map map = new HashMap();
+                map.put("deviceId", deviceId);
+                map.put("connected", connected);
+                channel.invokeMethod("stateChange", map);
+            }
+        });
     }
 
     @Override
-    public synchronized void onDeviceFound(final BluetoothDevice device, int rssi) {
-       this.registrar.activity().runOnUiThread(new Runnable() {
-           @Override
-           public void run() {
-               Map map = new HashMap();
-               map.put("deviceId", Utils.getDeviceId(device));
-               map.put("name", device.getName() == null ? "" : device.getName());
-               channel.invokeMethod("foundDevice", map);
-           }
-       });
+    public synchronized void onDeviceFound(final DeviceAdapter device) {
+        Log.d("BLE",String.format("found device %s",device.getName()));
+
+        channel.invokeMethod("foundDevice", deviceToMap(device));
+    }
+
+    private Map deviceToMap(DeviceAdapter device){
+        Map map = new HashMap();
+        map.put("deviceId", Utils.getDeviceId(device.getDevice()));
+        map.put("name", device.getName() == null ? "" : device.getName());
+        map.put("RSSI",device.getRssi());
+        return map;
     }
 
     @Override

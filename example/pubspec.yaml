@@ -16,6 +16,10 @@ dependencies:
   cupertino_icons: ^0.1.2
 
 
+  shared_preferences: any
+  simple_permissions: any
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
