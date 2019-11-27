@@ -1,3 +1,7 @@
+# 0.0.4
+
+* Add example for device TKB_BLE
+* Can call openBluetoothAdapter repeatly
 
 ## 0.0.3
 
