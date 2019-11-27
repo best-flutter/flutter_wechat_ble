@@ -43,7 +43,7 @@ class BleError extends Error {
       case "10008":
         return "System error!";
     }
-    return "10009";
+    return "System not support";
   }
 }
 

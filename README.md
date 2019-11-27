@@ -303,6 +303,89 @@ FlutterWechatBle.onBLECharacteristicValueChange(null)
 
 
 
+## 加入BluetoothService封装一问一答式蓝牙设备的操作
+
+### 介绍
+
+一问一答式的通信方式指的是将蓝牙设备当成一台服务器来看，当app发送一个设备支持的指令给设备的时候，设备将会通过通知的方式返回一个响应。
+这个过程，对于大部分蓝牙设备都是通用的。
+
+其中的一问一答式，我们可以将之封装起来，通过设备配置类，封装数据包的组装和处理的方式，大大减少实际的开发工作量。
+
+目前在代码中放了一个实际的设备,具体可以看这里:
+
+https://github.com/best-flutter/flutter_wechat_ble/blob/master/example/lib/screens/connect_to_tkb.dart
+
+https://github.com/best-flutter/flutter_wechat_ble/blob/master/example/lib/services/TkbDeviceConfig.dart
+
+其中将搜索设备、连接设备、发现服务、发现特征、设置通知、写入和获取数据统一封装起来。将这些复杂的操作转成标准的流程，
+并且可以支持连接多种设备，管理多个设备的连接。并将通知型的消息获取过程，改造成发送消息后可以直接使用await等待数据返回，
+将原来的非线性流程改成如丝滑般柔顺的线性流程。
+
+下面的代码演示:
+
+```
+static DeviceConfig config = new TbkDeviceConfig();
+  static BluetoothService bluetoothService =
+      new BluetoothService(configs: [config]);
+
+
+@override
+  void initState() {
+    super.initState();
+
+    this.startup();
+  }
+
+  void startup() async {
+    await setState(() {
+      messages.add("searing devices...");
+    });
+    await bluetoothService.shutdown();
+    bluetoothService.onServiceDeviceFound(onServiceDeviceFound);
+    await bluetoothService.startScan();
+  }
+
+  void onServiceDeviceFound(BluetoothServiceDevice device) async {
+    print("device ${device.device} ${device.name}");
+    await setState(() {
+      messages.add("startup devices with name TKB_BLE...${device.name}");
+    });
+    try {
+      await bluetoothService.stopScan();
+      await bluetoothService.startupDevice(device.deviceId);
+
+      await setState(() {
+        messages.add("writing data : 000062");
+      });
+      print("write data");
+      HexValue value = await device.write("000062");
+      print("write data success");
+      await setState(() {
+        messages.add("writing data success, response: ${value.string}");
+      });
+      print("=================" + value.string);
+    } on BleError catch (e) {
+      print(
+          ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${e.code} ${e.message}");
+      setState(() {
+        messages.add("Ble error : ${e.code} ${e.message}");
+      });
+    } catch (e) {
+      print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> $e");
+      setState(() {
+        messages.add("other error : ${e.code} ${e.message}");
+      });
+    }
+  }
+
+
+```
+
+
+
+
+
 ## Example
 
 ![](images/1.jpg)
