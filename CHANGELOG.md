@@ -1,4 +1,10 @@
-# 0.0.4
+# 0.0.5
+
+* Add RSSI
+* Add example for BluetoothService
+
+
+## 0.0.4
 
 * Add example for device TKB_BLE
 * Can call openBluetoothAdapter repeatly
