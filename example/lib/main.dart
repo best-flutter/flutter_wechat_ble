@@ -19,43 +19,43 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static DeviceConfig config = new TbkDeviceConfig();
-  static BluetoothService bluetoothService = new BluetoothService(configs: [config]);
+//  static DeviceConfig config = new TbkDeviceConfig();
+//  static BluetoothService bluetoothService = new BluetoothService(configs: [config]);
 
   @override
   void initState() {
     super.initState();
 
-    startup();
+   // startup();
   }
 
-  void startup() async {
-    await bluetoothService.shutdown();
-    bluetoothService.onServiceDeviceFound(onServiceDeviceFound);
-    await bluetoothService.startScan();
-  }
-
-  void onServiceDeviceFound(BluetoothServiceDevice device) async {
-    print("device ${device.device} ${device.name}");
-
-    new Timer(new Duration(seconds: 1), () {
-      print("timeout");
-    });
-    try {
-      await bluetoothService.stopScan();
-      await bluetoothService.startupDevice(device.deviceId);
-      print("write data");
-      HexValue value = await device.write("000062");
-      print("write data success");
-
-      print("=================" + value.string);
-    } on BleError catch (e) {
-      print(
-          ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${e.code} ${e.message}");
-    } catch (e) {
-      print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> $e");
-    }
-  }
+//  void startup() async {
+//    await bluetoothService.shutdown();
+//    bluetoothService.onServiceDeviceFound(onServiceDeviceFound);
+//    await bluetoothService.startScan();
+//  }
+//
+//  void onServiceDeviceFound(BluetoothServiceDevice device) async {
+//    print("device ${device.device} ${device.name}");
+//
+//    new Timer(new Duration(seconds: 1), () {
+//      print("timeout");
+//    });
+//    try {
+//      await bluetoothService.stopScan();
+//      await bluetoothService.startupDevice(device.deviceId);
+//      print("write data");
+//      HexValue value = await device.write("000062");
+//      print("write data success");
+//
+//      print("=================" + value.string);
+//    } on BleError catch (e) {
+//      print(
+//          ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${e.code} ${e.message}");
+//    } catch (e) {
+//      print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> $e");
+//    }
+//  }
 
   @override
   Widget build(BuildContext context) {
