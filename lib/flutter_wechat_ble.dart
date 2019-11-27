@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_wechat_ble/utils.dart';
 
 export 'package:flutter_wechat_ble/utils.dart';
+export 'package:flutter_wechat_ble/bluetooth_service.dart';
 
 // #define NOT_INIT @"10000"
 //    #define NOT_AVALIABLE @"10001"

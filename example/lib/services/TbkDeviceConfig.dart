@@ -1,5 +1,5 @@
 import 'package:flutter_wechat_ble/flutter_wechat_ble.dart';
-import '../services/bluetooth_service.dart';
+import 'package:flutter_wechat_ble/bluetooth_service.dart';
 
 class TbkDeviceConfig extends BleDeviceConfig {
   TbkDeviceConfig()

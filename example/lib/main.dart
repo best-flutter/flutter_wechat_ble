@@ -7,7 +7,7 @@ import 'package:flutter_wechat_ble_example/screens/home.dart';
 
 import 'package:easy_alert/easy_alert.dart';
 import 'package:flutter_wechat_ble_example/services/TbkDeviceConfig.dart';
-import 'package:flutter_wechat_ble_example/services/bluetooth_service.dart';
+import 'package:flutter_wechat_ble/bluetooth_service.dart';
 
 void main() => runApp(new AlertProvider(
       child: MyApp(),
