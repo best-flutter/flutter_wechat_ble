@@ -10,6 +10,7 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Build;
+import android.util.Log;
 
 import java.util.List;
 import java.util.UUID;
@@ -46,6 +47,7 @@ class DeviceAdapter extends BluetoothGattCallback {
     @Override
     public synchronized void onConnectionStateChange(BluetoothGatt gatt, final int status, final int newState) {
         super.onConnectionStateChange(gatt, status, newState);
+        Log.d("BLE","onConnectionStateChange");
         if (status != BluetoothGatt.GATT_SUCCESS) { // 连接失败判断
             //连接失败
             connected = false;
@@ -98,11 +100,13 @@ class DeviceAdapter extends BluetoothGattCallback {
         }
         //不是失败的情况就是成功
 
+        Log.d("BLE","onDescriptorWrite");
     }
 
     @Override
     public synchronized void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
         super.onCharacteristicChanged(gatt, characteristic);
+        Log.d("BLE","onCharacteristicChanged");
         //BLE设备主动向手机发送的数据时收到的数据回调
         if (listener != null) {
             listener.onCharacteristicChanged(this, characteristic);
@@ -113,6 +117,7 @@ class DeviceAdapter extends BluetoothGattCallback {
     public synchronized void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         super.onCharacteristicWrite(gatt, characteristic, status);
 
+        Log.d("BLE","onCharacteristicWrite");
 
         if (listener != null) {
             listener.onCharacteristicWrite(this, characteristic, status == BluetoothGatt.GATT_SUCCESS);
@@ -122,6 +127,7 @@ class DeviceAdapter extends BluetoothGattCallback {
     @Override
     public synchronized void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         super.onCharacteristicRead(gatt, characteristic, status);
+        Log.d("BLE","onCharacteristicRead");
         if (listener != null) {
             listener.onCharacteristicRead(this, characteristic, status == BluetoothGatt.GATT_SUCCESS);
         }
@@ -130,6 +136,7 @@ class DeviceAdapter extends BluetoothGattCallback {
     @Override
     public synchronized void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
         super.onDescriptorRead(gatt, descriptor, status);
+        Log.d("BLE","onDescriptorRead");
         if (status != BluetoothGatt.GATT_SUCCESS) {  // 写数据失败
             return;
         }
@@ -137,6 +144,7 @@ class DeviceAdapter extends BluetoothGattCallback {
 
     public synchronized void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
         //super.onMtuChanged(gatt, mtu, status);
+        Log.d("BLE","onMtuChanged");
         if (status != BluetoothGatt.GATT_SUCCESS) {  // 写数据失败
             return;
         }
@@ -145,6 +153,7 @@ class DeviceAdapter extends BluetoothGattCallback {
     @Override
     public synchronized void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
         super.onReadRemoteRssi(gatt, rssi, status);
+        Log.d("BLE","onReadRemoteRssi");
         if (status != BluetoothGatt.GATT_SUCCESS) {  // 写数据失败
             return;
         }
@@ -153,6 +162,7 @@ class DeviceAdapter extends BluetoothGattCallback {
     @Override
     public synchronized void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
         super.onReliableWriteCompleted(gatt, status);
+        Log.d("BLE","onReliableWriteCompleted");
         if (status != BluetoothGatt.GATT_SUCCESS) {  // 写数据失败
             return;
         }

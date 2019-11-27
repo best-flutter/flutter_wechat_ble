@@ -28,7 +28,10 @@ class BleScanner5 extends ScanCallback implements BleScanner {
     }
 
     public void stopScan(BluetoothAdapter adapter) {
-        scaner.stopScan(this);   // 停止扫描
+        if(scaner!=null){
+            scaner.stopScan(this);   // 停止扫描
+        }
+
     }
 
     @Override

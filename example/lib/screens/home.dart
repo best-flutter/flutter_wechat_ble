@@ -122,19 +122,19 @@ class HomeState extends State<Home> {
       loading = true;
     });
 
-    try {
-      BleModel.getInstance()
-          .onConnectionStateChange((String deviceId, bool connected) {
-        Alert.toast(context, "Device $deviceId state change to $connected");
-      });
-      await BleModel.getInstance().shutdown();
-      await BleModel.getInstance().startup(foundDeviceCallback);
-      BleModel.getInstance().listenValueChanged(valueChangeCallback);
-    } on BleError catch (e) {
-      setState(() {
-        error = e.message;
-      });
-    }
+//    try {
+//      BleModel.getInstance()
+//          .onConnectionStateChange((String deviceId, bool connected) {
+//        Alert.toast(context, "Device $deviceId state change to $connected");
+//      });
+//      await BleModel.getInstance().shutdown();
+//      await BleModel.getInstance().startup(foundDeviceCallback);
+//      BleModel.getInstance().listenValueChanged(valueChangeCallback);
+//    } on BleError catch (e) {
+//      setState(() {
+//        error = e.message;
+//      });
+//    }
   }
 
   @override

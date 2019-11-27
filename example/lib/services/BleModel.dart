@@ -1,6 +1,8 @@
 import 'package:easy_alert/easy_alert.dart';
 import 'package:flutter_wechat_ble/flutter_wechat_ble.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_wechat_ble_example/services//bluetooth_service.dart';
+import 'package:flutter_wechat_ble_example/services/TbkDeviceConfig.dart';
 
 class BleLogger extends ChangeNotifier {
   List<String> logger = [];

@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.flutter.Log;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
@@ -172,9 +173,14 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
             String characteristicId = (String) data.get("characteristicId");
             String value = (String) data.get("value");
             byte[] bytes = HexUtil.decodeHex(value);
-            writeListener = promise;
+            Log.d("BLE", String.format("write value %s", value ) );
+           // writeListener = promise;
             deviceAdapter.write(serviceId, characteristicId, bytes);
+            Log.d("BLE", String.format("write value success %s, waiting for notify", value ) );
         } catch (BluetoothException e) {
+
+           // writeListener = null;
+            Log.d("BLE", String.format("write value error %s",e.getMessage() ) );
             retToCallback(e.ret, promise);
         }
 
@@ -416,6 +422,7 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
         this.registrar.activity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                Log.d("BLE","onCharacteristicWrite");
                 if (writeListener != null) {
                     if (success) {
                         writeListener.success(new HashMap<String,Object>());

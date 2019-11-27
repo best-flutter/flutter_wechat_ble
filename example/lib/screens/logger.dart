@@ -139,19 +139,19 @@ class NumberKey extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Expanded(
         child: new Container(
-          color: Colors.white,
-          child: new InkWell(
-            child: new Center(
-              child: new Text(
-                text,
-                style: new TextStyle(fontSize: 20.0),
-              ),
-            ),
-            onTap: () {
-              onPress(text);
-            },
+      color: Colors.white,
+      child: new InkWell(
+        child: new Center(
+          child: new Text(
+            text,
+            style: new TextStyle(fontSize: 20.0),
           ),
-        ));
+        ),
+        onTap: () {
+          onPress(text);
+        },
+      ),
+    ));
   }
 }
 
@@ -175,7 +175,7 @@ class NumberKeyboard extends StatelessWidget {
       color: Colors.grey,
       child: new Column(
         children: <Widget>[
-          new Container(height:1),
+          new Container(height: 1),
           new Expanded(
               child: new Row(
             children: <Widget>[
@@ -197,7 +197,7 @@ class NumberKeyboard extends StatelessWidget {
               ),
             ],
           )),
-          new Container(height:1),
+          new Container(height: 1),
           new Expanded(
               child: new Row(
             children: <Widget>[
@@ -219,7 +219,7 @@ class NumberKeyboard extends StatelessWidget {
               ),
             ],
           )),
-          new Container(height:1),
+          new Container(height: 1),
           new Expanded(
               child: new Row(
             children: <Widget>[
@@ -241,7 +241,7 @@ class NumberKeyboard extends StatelessWidget {
               ),
             ],
           )),
-          new Container(height:1),
+          new Container(height: 1),
           new Expanded(
               child: new Row(
             children: <Widget>[
@@ -263,7 +263,7 @@ class NumberKeyboard extends StatelessWidget {
               ),
             ],
           )),
-          new Container(height:1),
+          new Container(height: 1),
           new Expanded(
               child: new Row(
             children: <Widget>[
