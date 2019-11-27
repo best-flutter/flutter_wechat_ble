@@ -158,9 +158,7 @@ typedef void FoundDeviceCallback(BleDevice device);
 typedef void ValueChangeCallback(BleValue value);
 typedef void ConnectionStateChangeCallback(String deviceId, bool connected);
 
-
-class BluetoothState{
-
+class BluetoothState {
   // is bluetooth adapter available?
   // 蓝牙适配器是否可用
   bool available;
@@ -169,11 +167,7 @@ class BluetoothState{
   // 是否正在搜索设备
   bool discovering;
 
-
-  BluetoothState({
-    this.available,
-    this.discovering
-});
+  BluetoothState({this.available, this.discovering});
 }
 
 class FlutterWechatBle {
@@ -213,8 +207,10 @@ class FlutterWechatBle {
 
             return oldDevice;
           }, ifAbsent: () {
-            BleDevice device =
-                new BleDevice(name: data['name'], deviceId: data['deviceId'],RSSI: data['RSSI']);
+            BleDevice device = new BleDevice(
+                name: data['name'],
+                deviceId: data['deviceId'],
+                RSSI: data['RSSI']);
             if (_onBluetoothDeviceFoundCallback != null) {
               _onBluetoothDeviceFoundCallback(device);
             }
@@ -420,17 +416,12 @@ class FlutterWechatBle {
     return result;
   }
 
+  static Future<BluetoothState> getBluetoothAdapterState() async {
+    var result = await _channel.invokeMethod('getBluetoothAdapterState', {});
 
-  static Future<BluetoothState> getBluetoothAdapterState() async{
-
-    var result =
-        await _channel.invokeMethod('getBluetoothAdapterState', {
-    });
-
-    return new BluetoothState(available: result['available'],discovering: result['discovering']);
+    return new BluetoothState(
+        available: result['available'], discovering: result['discovering']);
   }
-
-
 
   static Future notifyBLECharacteristicValueChange(
       {String deviceId,

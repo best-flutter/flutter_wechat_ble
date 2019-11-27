@@ -4,10 +4,8 @@ import 'dart:async';
 typedef void OnServiceDeviceStateChangeCallback(BluetoothServiceDevice device);
 typedef void OnServiceDeviceFoundCallback(BluetoothServiceDevice device);
 
-
 const int kDataTimeout = 500;
 const int kConnectTimeout = 10;
-
 
 abstract class BleDeviceConfig extends DeviceConfig {
   //the default service id want to communicate
@@ -74,8 +72,6 @@ abstract class DeviceConfig {
 
 ///
 abstract class BluetoothServiceDevice {
-
-
   final BleDevice device;
 
   //the device config
@@ -84,7 +80,7 @@ abstract class BluetoothServiceDevice {
   // this value will be changed when connection state changed
   bool connected;
 
-  BluetoothServiceDevice({this.device, this.config,this.connected = false});
+  BluetoothServiceDevice({this.device, this.config, this.connected = false});
 
   void onReceiveData(BleValue value);
 
@@ -316,7 +312,6 @@ class BluetoothServiceBleDevice extends BluetoothServiceDevice {
   }
 }
 
-
 class BluetoothService {
   final List<DeviceConfig> _configs;
   Map<String, BluetoothServiceDevice> _serviceDevices = {};
@@ -339,13 +334,13 @@ class BluetoothService {
     FlutterWechatBle.onBLEConnectionStateChange(_onBLEConnectionStateChange);
   }
 
-  void _onBLEConnectionStateChange(String deviceId,bool connected){
+  void _onBLEConnectionStateChange(String deviceId, bool connected) {
     BluetoothServiceDevice device = getDeviceById(deviceId);
-    if(device==null){
+    if (device == null) {
       throw new AssertionError("Cannot find device :$deviceId");
     }
     device.connected = connected;
-    if(_onServiceDeviceStateChangeCallback!=null){
+    if (_onServiceDeviceStateChangeCallback != null) {
       _onServiceDeviceStateChangeCallback(device);
     }
   }
@@ -412,12 +407,9 @@ class BluetoothService {
 
     try {
       await serviceDevice.close();
-    } catch (e) {
-
-    } finally {
+    } catch (e) {} finally {
       serviceDevice.connected = false;
       await serviceDevice.config.onClose(this, serviceDevice);
-
     }
   }
 

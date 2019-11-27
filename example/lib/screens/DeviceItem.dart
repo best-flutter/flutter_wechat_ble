@@ -7,7 +7,6 @@ import 'package:flutter_wechat_ble_example/services/BleModel.dart';
 import 'package:flutter_wechat_ble_example/widgets/ErrorView.dart';
 import 'package:flutter_wechat_ble_example/widgets/LoadingView.dart';
 
-
 class DeviceItem extends StatelessWidget {
   final BleDevice device;
 

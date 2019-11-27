@@ -1,7 +1,4 @@
-
-
 import 'package:flutter_wechat_ble/flutter_wechat_ble.dart';
-
 
 import 'package:flutter/material.dart';
 import 'package:flutter_wechat_ble_example/screens/DeviceItem.dart';
@@ -12,13 +9,11 @@ class DeviceList extends StatefulWidget {
   _DeviceListState createState() => _DeviceListState();
 }
 
-
-
 class InnerDeviceItem extends StatelessWidget {
   final BluetoothServiceDevice device;
   Function toggleConnect;
 
-  InnerDeviceItem({this.device,this.toggleConnect});
+  InnerDeviceItem({this.device, this.toggleConnect});
 
   @override
   Widget build(BuildContext context) {
@@ -32,26 +27,27 @@ class InnerDeviceItem extends StatelessWidget {
                 child: new Icon(Icons.bluetooth),
                 padding: new EdgeInsets.all(10.0),
               ),
-              new Expanded(child: new Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-              new Text(
-              device.name,
-              style: new TextStyle(fontSize: 25.0),
+              new Expanded(
+                child: new Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    new Text(
+                      device.name,
+                      style: new TextStyle(fontSize: 25.0),
+                    ),
+                    new Text(
+                      device.deviceId,
+                      style: new TextStyle(fontSize: 12.0),
+                    )
+                  ],
+                ),
               ),
-              new Text(
-              device.deviceId,
-              style: new TextStyle(fontSize: 12.0),
+              new RaisedButton(
+                onPressed: () async {
+                  toggleConnect(device);
+                },
+                child: new Text(device.connected ? "Disconnect" : "Connect"),
               )
-              ],
-              ),),
-              new RaisedButton(onPressed: () async{
-
-                toggleConnect(device);
-
-
-
-              },child: new Text(device.connected ? "Disconnect" : "Connect"),)
             ],
           )
         ],
@@ -61,15 +57,13 @@ class InnerDeviceItem extends StatelessWidget {
 }
 
 class _DeviceListState extends State<DeviceList> {
-
   static DeviceConfig config = new TbkDeviceConfig();
   static BluetoothService bluetoothService =
-  new BluetoothService(configs: [config]);
+      new BluetoothService(configs: [config]);
 
   String message = "Loading...";
 
   List<BluetoothServiceDevice> devices = [];
-
 
   @override
   void initState() {
@@ -82,10 +76,8 @@ class _DeviceListState extends State<DeviceList> {
   void startup() async {
     await bluetoothService.shutdown();
     bluetoothService.onServiceDeviceFound(onServiceDeviceFound);
-    bluetoothService.onServiceDeviceStateChange((dev){
-      setState(() {
-
-      });
+    bluetoothService.onServiceDeviceStateChange((dev) {
+      setState(() {});
     });
     await bluetoothService.startScan();
   }
@@ -121,7 +113,6 @@ class _DeviceListState extends State<DeviceList> {
 //    }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -132,7 +123,8 @@ class _DeviceListState extends State<DeviceList> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           new Text(message),
-          new Expanded(child: new ListView(
+          new Expanded(
+              child: new ListView(
             children: render(context, devices),
           ))
         ],
@@ -140,26 +132,23 @@ class _DeviceListState extends State<DeviceList> {
     );
   }
 
-
-  List<Widget> render(BuildContext context, List<BluetoothServiceDevice> children) {
+  List<Widget> render(
+      BuildContext context, List<BluetoothServiceDevice> children) {
     return ListTile.divideTiles(
         context: context,
         tiles: children.map((BluetoothServiceDevice data) {
           return new InnerDeviceItem(
             device: data,
-            toggleConnect: (BluetoothServiceDevice device) async{
-
-
-              try{
-                if(device.connected){
+            toggleConnect: (BluetoothServiceDevice device) async {
+              try {
+                if (device.connected) {
                   print("start disconnect device");
                   await bluetoothService.shutdownDevice(device.deviceId);
                   print("disconnect ok");
                   setState(() {
                     message = "disconnect ok";
                   });
-
-                }else{
+                } else {
                   await bluetoothService.startupDevice(device.deviceId);
                   setState(() {
                     message = "connect ok";
@@ -169,12 +158,12 @@ class _DeviceListState extends State<DeviceList> {
                     message = "send data and receive data ${value.string}";
                   });
                 }
-              }on BleError catch(e){
+              } on BleError catch (e) {
                 setState(() {
                   message = "${e.code} ${e.message}";
                 });
                 print(e.code);
-              }catch(e){
+              } catch (e) {
                 print(e);
               }
             },

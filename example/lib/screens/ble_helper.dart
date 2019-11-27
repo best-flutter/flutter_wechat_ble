@@ -15,7 +15,6 @@ class BleHelper extends StatefulWidget {
   }
 }
 
-
 class BleHelperState extends State<BleHelper> {
   List<BleDevice> data = [];
 

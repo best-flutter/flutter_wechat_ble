@@ -46,8 +46,8 @@ class _HomeState extends State<Home> {
             onTap: () {
               Navigator.push(context,
                   new MaterialPageRoute(builder: (BuildContext context) {
-                    return new DeviceList();
-                  }));
+                return new DeviceList();
+              }));
             },
           ),
         ],
