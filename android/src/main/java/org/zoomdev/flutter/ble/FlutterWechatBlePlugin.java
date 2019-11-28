@@ -57,7 +57,12 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
                     return;
                 }
             }
-            listener.run();
+            try{
+                listener.run();
+            }catch (Throwable t){
+                android.util.Log.d("BLE",t.getMessage());
+            }
+
         }
     }
 
@@ -332,6 +337,8 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
     }
 
 
+
+    private Result notifyListener;
     public synchronized void notifyBLECharacteristicValueChange(Map data, final Result promise) {
         String deviceId = (String) data.get("deviceId");
         if (deviceId == null) {
@@ -344,10 +351,30 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
             String serviceId = (String) data.get("serviceId");
             String characteristicId = (String) data.get("characteristicId");
             boolean notify = (Boolean) data.get("state");
+            notifyListener = promise;
             deviceAdapter.setNotify(serviceId, characteristicId, notify);
-            promise.success(new HashMap<String,Object>());
+            //promise.success(new HashMap<String,Object>());
         } catch (BluetoothException e) {
             retToCallback(e.ret, promise);
+        }
+    }
+
+
+    @Override
+    public void onNotifyChanged(DeviceAdapter device, BluetoothGattCharacteristic characteristic, boolean success) {
+        if(this.notifyListener!=null){
+            final Result notifyListener = this.notifyListener;
+            this.notifyListener = null;
+            if(success){
+               runOnUIThread(new Runnable() {
+                   @Override
+                   public void run() {
+                       notifyListener.success(new HashMap<>());
+                   }
+               });
+            }else{
+                processError(SYSTEM_ERROR,"",notifyListener);
+            }
         }
     }
 
@@ -485,6 +512,7 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
             readListener = null;
         }
     }
+
 
 
     @Override

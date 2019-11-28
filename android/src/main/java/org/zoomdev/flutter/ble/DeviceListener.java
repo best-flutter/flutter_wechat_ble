@@ -42,4 +42,6 @@ public interface DeviceListener {
     void onCharacteristicWrite(DeviceAdapter device, BluetoothGattCharacteristic characteristic, boolean success);
 
     void onCharacteristicRead(DeviceAdapter device, BluetoothGattCharacteristic characteristic, boolean success);
+
+    void onNotifyChanged(DeviceAdapter deviceAdapter, BluetoothGattCharacteristic characteristic,boolean success);
 }

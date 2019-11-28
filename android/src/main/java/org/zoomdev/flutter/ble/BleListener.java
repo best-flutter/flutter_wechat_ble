@@ -29,4 +29,6 @@ public interface BleListener {
     void onCharacteristicChanged(DeviceAdapter device, BluetoothGattCharacteristic characteristic);
 
     void onCharacteristicRead(DeviceAdapter device, BluetoothGattCharacteristic characteristic, boolean success);
+
+    void onNotifyChanged(DeviceAdapter device, BluetoothGattCharacteristic characteristic, boolean success);
 }

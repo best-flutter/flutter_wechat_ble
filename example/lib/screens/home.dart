@@ -12,12 +12,15 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+      appBar: new AppBar(
+        title: new Text("Bluetooth demo"),
+      ),
       body: new ListView(
         children: <Widget>[
           new InkWell(
             child: new Padding(
               padding: new EdgeInsets.all(10.0),
-              child: new Text("Ble helper"),
+              child: new Text("Bluetooth helper"),
             ),
             onTap: () {
               Navigator.push(context,

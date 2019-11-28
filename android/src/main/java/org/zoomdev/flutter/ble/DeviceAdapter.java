@@ -53,22 +53,33 @@ class DeviceAdapter extends BluetoothGattCallback {
         return listener;
     }
 
-
+    private int retryCount = 1;
     @Override
     public synchronized void onConnectionStateChange(BluetoothGatt gatt, final int status, final int newState) {
         super.onConnectionStateChange(gatt, status, newState);
         Log.d("BLE","onConnectionStateChange " + status + " " + newState);
         if (status != BluetoothGatt.GATT_SUCCESS) { // 连接失败判断
-            //连接失败
-            connected = false;
-            DeviceListener listener = getListener();
-            if (listener != null) {
-                listener.onConnectFailed(this);
+            if(retryCount > 0){
+                this.retryCount--;
+                this.clear();
+                this.connect(context);
+            }else{
+                //连接失败
+                Log.d("BLE","连接失败");
+                connected = false;
+                this.clear();
+                DeviceListener listener = getListener();
+
+                if (listener != null) {
+                    listener.onConnectFailed(this);
+                }
             }
+
             return;
         }
         if (newState == BluetoothProfile.STATE_CONNECTED) { // 连接成功判断
             //mBluetoothGatt.discoverServices(); // 发现服务
+            Log.d("BLE","连接成功");
             //成功之后加入到缓存
             connected = true;
             DeviceListener listener = getListener();
@@ -78,10 +89,7 @@ class DeviceAdapter extends BluetoothGattCallback {
             return;
         }
         if (newState == BluetoothProfile.STATE_DISCONNECTED) {  // 连接断开判断
-            if(this.gatt!=null){
-                this.gatt.close();
-                this.gatt = null;
-            }
+            this.clear();
             connected = false;
             DeviceListener listener = getListener();
             if (listener != null) {
@@ -95,7 +103,6 @@ class DeviceAdapter extends BluetoothGattCallback {
     @Override
     public synchronized void onServicesDiscovered(BluetoothGatt gatt, final int status) {
         super.onServicesDiscovered(gatt, status);
-        DeviceListener listener = getListener();
 
         this.services = gatt.getServices();
         if (getServicesListener != null) {
@@ -108,11 +115,19 @@ class DeviceAdapter extends BluetoothGattCallback {
     @Override
     public synchronized void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, final int status) {
         super.onDescriptorWrite(gatt, descriptor, status);
-        if (status != BluetoothGatt.GATT_SUCCESS) {  // 写Descriptor失败
-            return;
-        }
+//        if (status != BluetoothGatt.GATT_SUCCESS) {  // 写Descriptor失败
+//            return;
+//        }
         //不是失败的情况就是成功
 
+
+        if(listener!=null){
+            listener.onNotifyChanged(this,descriptor.getCharacteristic(),status ==  BluetoothGatt.GATT_SUCCESS);
+        }
+
+//        if (listener != null) {
+//            listener.onCharacteristicChanged(this, characteristic);
+//        }
         Log.d("BLE","onDescriptorWrite");
     }
 
@@ -188,16 +203,30 @@ class DeviceAdapter extends BluetoothGattCallback {
 
     }
 
+    private void clear() {
+        if (this.gatt != null){
+            this.gatt.close();
+            this.gatt = null;
+        }
+        if(this.services!=null){
+            this.services.clear();
+            this.services = null;
+        }
+
+    }
+
     /**
      * 强制断开和设备的连接
      */
     public synchronized void disconnect() {
+
         try {
             if (this.gatt != null) {
                 this.gatt.disconnect();
             }
         } catch (Throwable t) {
 
+        }finally {
         }
     }
 
@@ -210,12 +239,16 @@ class DeviceAdapter extends BluetoothGattCallback {
         return connected;
     }
 
+    private Context context;
+
     public synchronized void connect(Context context) {
+        this.context = context;
         // We want to directly connect to the device, so we are setting the autoConnect
         // parameter to false.
         if(this.gatt!=null){
             Log.d("BLE","gatt is not null");
         }
+        retryCount = 1;
         this.gatt = device.connectGatt(context, false, this);
 
     }

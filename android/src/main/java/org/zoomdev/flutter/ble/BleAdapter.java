@@ -179,11 +179,13 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
                     listener.onDeviceConnected(connectedDevice);
                 }
             }else{
-                connectedDevice.connect(context);
+               // connectedDevice.connect(context);
             }
 
             return BluetoothAdapterResult.BluetoothAdapterResultOk;
         }
+
+        connectedDevices.put(deviceId,device);
         //如果已经在连接了,就不用连接了
         device.connect(context);
 
@@ -192,24 +194,26 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
     }
 
     @Override
-    public synchronized void onDeviceFound(BluetoothDevice device, int rssi) {
+    public void onDeviceFound(BluetoothDevice device, int rssi) {
         String uuid = Utils.getDeviceId(device);
 
-        if(!deviceMap.containsKey(uuid)){
-            DeviceAdapter deviceAdapter = new DeviceAdapter(device,this);
-            deviceAdapter.setRssi(rssi);
+        DeviceAdapter deviceAdapter = deviceMap.get(uuid);
+        if(deviceAdapter==null){
+            deviceAdapter = new DeviceAdapter(device,this);
             deviceMap.put(uuid, deviceAdapter);
-            if (listener != null) {
-                listener.onDeviceFound(deviceAdapter);
-            }
+        }else{
+            assert (deviceAdapter.getDevice() == device);
         }
-
+        deviceAdapter.setRssi(rssi);
+        if (listener != null) {
+            listener.onDeviceFound(deviceAdapter);
+        }
 
     }
 
 
     @Override
-    public synchronized void onDisconnected(DeviceAdapter device) {
+    public void onDisconnected(DeviceAdapter device) {
         connectedDevices.remove(device.getDeviceId());
         if (listener != null) {
             listener.onDeviceDisconnected(device);
@@ -217,7 +221,7 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
     }
 
     @Override
-    public synchronized void onConnected(DeviceAdapter device) {
+    public void onConnected(DeviceAdapter device) {
         connectedDevices.put(device.getDeviceId(),device);
         if (listener != null) {
             listener.onDeviceConnected(device);
@@ -225,7 +229,7 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
     }
 
     @Override
-    public synchronized void onConnectFailed(DeviceAdapter device) {
+    public void onConnectFailed(DeviceAdapter device) {
         if (listener != null) {
             listener.onDeviceConnectFailed(device);
         }
@@ -233,37 +237,44 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
 
 
     @Override
-    public synchronized void onCharacteristicChanged(DeviceAdapter device, BluetoothGattCharacteristic characteristic) {
+    public void onCharacteristicChanged(DeviceAdapter device, BluetoothGattCharacteristic characteristic) {
         if (listener != null) {
             listener.onCharacteristicChanged(device, characteristic);
         }
     }
 
     @Override
-    public synchronized void onCharacteristicWrite(DeviceAdapter device, BluetoothGattCharacteristic characteristic, boolean success) {
+    public void onCharacteristicWrite(DeviceAdapter device, BluetoothGattCharacteristic characteristic, boolean success) {
         if (listener != null) {
             listener.onCharacteristicWrite(device, characteristic, success);
         }
     }
 
     @Override
-    public synchronized void onCharacteristicRead(DeviceAdapter device, BluetoothGattCharacteristic characteristic, boolean success) {
+    public void onCharacteristicRead(DeviceAdapter device, BluetoothGattCharacteristic characteristic, boolean success) {
         if (listener != null) {
             listener.onCharacteristicRead(device, characteristic, success);
         }
     }
 
+    @Override
+    public void onNotifyChanged(DeviceAdapter deviceAdapter, BluetoothGattCharacteristic characteristic,boolean success) {
+        if (listener != null) {
+            listener.onNotifyChanged(deviceAdapter, characteristic, success);
+        }
+    }
 
-    public synchronized Collection<DeviceAdapter> getDevices() {
+
+    public  Collection<DeviceAdapter> getDevices() {
         return deviceMap.values();
     }
 
-    public synchronized Collection<DeviceAdapter> getConnectedDevices(){
+    public  Collection<DeviceAdapter> getConnectedDevices(){
         return connectedDevices.values();
     }
 
     private boolean discovering;
-    public synchronized boolean isDiscovering() {
+    public  boolean isDiscovering() {
         return discovering;
     }
 }

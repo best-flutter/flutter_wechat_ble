@@ -35,7 +35,9 @@ abstract class BleDeviceConfig extends DeviceConfig {
       : super(
             checkServicesAndCharacteristics: checkServicesAndCharacteristics,
             connectTimeout: connectTimeout,
-            dataTimeout: dataTimeout);
+            dataTimeout: dataTimeout,
+            connectRetryInterval: connectRetryInterval,
+            connectRetryCount: connectRetryCount);
 
   @override
   BluetoothServiceDevice createBleServiceDevice(
@@ -240,40 +242,9 @@ class BluetoothServiceBleDevice extends BluetoothServiceDevice {
     }
   }
 
-  bool _connectTimeout;
 
   _connectDevice() async {
-    _connectTimeout = false;
-    return Future.any([
-      () async {
-        try {
-          await FlutterWechatBle.createBLEConnection(deviceId: deviceId);
-        } on BleError catch (e) {
-          if (_config.connectRetryCount > 0) {
-            for (int i = 0,
-                    c = max(_config.connectRetryCount, kMaxConnectRetryCount);
-                i < c;
-                ++i) {
-              if (_connectTimeout) {
-                return;
-              }
-              await Future.delayed(_config.connectRetryInterval);
-              try {
-                await FlutterWechatBle.createBLEConnection(deviceId: deviceId);
-                break;
-              } on BleError catch (e) {
-                continue;
-              }
-            }
-            throw e;
-          }
-        }
-      }(),
-      Future.delayed(_config.connectTimeout, () {
-        _connectTimeout = true;
-        return Future.error(new TimeoutException("Connect timeout"));
-      })
-    ]);
+    await FlutterWechatBle.createBLEConnection(deviceId: deviceId);
   }
 
   /// startup the device
@@ -282,15 +253,7 @@ class BluetoothServiceBleDevice extends BluetoothServiceDevice {
   @override
   dynamic startup() async {
     // open connection
-    try {
-      await _connectDevice();
-    } on TimeoutException catch (e) {
-      try {
-        await FlutterWechatBle.closeBLEConnection(deviceId: deviceId);
-      } catch (e) {}
-
-      throw e;
-    }
+    await _connectDevice();
 
     // get services
     List<BleService> services =

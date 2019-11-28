@@ -2,6 +2,8 @@ import 'package:flutter_wechat_ble/flutter_wechat_ble.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_wechat_ble_example/screens/DeviceItem.dart';
+import 'package:flutter_wechat_ble_example/services/AcrDeviceConfig.dart';
+import 'package:flutter_wechat_ble_example/services/R30DeviceConfig.dart';
 import 'package:flutter_wechat_ble_example/services/TkbDeviceConfig.dart';
 
 class DeviceList extends StatefulWidget {
@@ -57,9 +59,8 @@ class InnerDeviceItem extends StatelessWidget {
 }
 
 class _DeviceListState extends State<DeviceList> {
-  static DeviceConfig config = new TbkDeviceConfig();
-  static BluetoothService bluetoothService =
-      new BluetoothService(configs: [config]);
+  static BluetoothService bluetoothService = new BluetoothService(
+      configs: [new TbkDeviceConfig(), new R30DeviceConfig(),new AcrDeviceConfig()]);
 
   String message = "Loading...";
 
