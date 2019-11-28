@@ -399,6 +399,7 @@ class FlutterWechatBle {
     assert(value != null);
     assert(deviceId != null);
     assert(serviceId != null);
+    assert(serviceId != null);
     assert(characteristicId != null);
     if (value is List<int>) {
       value = HexUtils.encodeHex(value);

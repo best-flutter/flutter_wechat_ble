@@ -149,6 +149,21 @@ FlutterWechatBle.onBluetoothDeviceFound(null)
 
 
 
+#### 获取所有发现的设备
+
+发现的设备将在再次调用startBluetoothDevicesDiscovery后被清空
+
+```
+await FlutterWechatBle.getBluetoothDevices();
+```
+
+#### 获取所有已经连接的设备
+
+```
+await FlutterWechatBle.getConnectedBluetoothDevices();
+```
+
+
 #### 停止扫描外设
 
 ```
