@@ -242,7 +242,6 @@ class BluetoothServiceBleDevice extends BluetoothServiceDevice {
     }
   }
 
-
   _connectDevice() async {
     await FlutterWechatBle.createBLEConnection(deviceId: deviceId);
   }

@@ -59,8 +59,11 @@ class InnerDeviceItem extends StatelessWidget {
 }
 
 class _DeviceListState extends State<DeviceList> {
-  static BluetoothService bluetoothService = new BluetoothService(
-      configs: [new TbkDeviceConfig(), new R30DeviceConfig(),new AcrDeviceConfig()]);
+  static BluetoothService bluetoothService = new BluetoothService(configs: [
+    new TbkDeviceConfig(),
+    new R30DeviceConfig(),
+    new AcrDeviceConfig()
+  ]);
 
   String message = "Loading...";
 

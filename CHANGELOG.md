@@ -1,5 +1,10 @@
 
-# 0.0.6
+# 0.0.7
+
+* Add reconnect in native code
+
+
+## 0.0.6
 
 * Add reconnect
 
