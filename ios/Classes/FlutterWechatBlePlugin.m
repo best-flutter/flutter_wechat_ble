@@ -122,7 +122,9 @@
       [self writeBLECharacteristicValue:call.arguments callback:result];
   } else if([@"notifyBLECharacteristicValueChange" isEqualToString:method]){
       [self notifyBLECharacteristicValueChange:call.arguments callback:result];
-  } else {
+  } else if([@"getBluetoothAdapterState" isEqualToString:method]){
+      result(@{@"available":@(_adapter.available),@"discovering":@(_adapter.discovering)});
+   }  else {
     result(FlutterMethodNotImplemented);
   }
 }

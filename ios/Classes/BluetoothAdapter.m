@@ -385,7 +385,7 @@
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *, id> *)advertisementData RSSI:(NSNumber *)RSSI{
     
-    NSString* uuidOfDev = [Utils uuid:peripheral.identifier];
+    NSString* uuidOfDev = [Utils uuidOfNSUUID:peripheral.identifier];
     //找到外设
     
     CBPeripheral* deviceInfo = [_devices objectForKey:uuidOfDev];
@@ -403,7 +403,7 @@
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral{
     
     //这里成功了
-    [_connectedDevices addObject:[Utils uuid:peripheral.identifier]];
+    [_connectedDevices addObject:[Utils uuidOfNSUUID:peripheral.identifier]];
     //并且报成功
     if(_connectDeviceCallback!=nil){
         _connectDeviceCallback(peripheral,nil);
@@ -429,7 +429,7 @@
         _connectionStatusCallback(peripheral,nil);
     }
     
-    [_connectedDevices removeObject:[Utils uuid:peripheral.identifier]];
+    [_connectedDevices removeObject:[Utils uuidOfNSUUID:peripheral.identifier]];
     
 }
 
@@ -445,7 +445,7 @@
         _discoveryDeviceCallback(
                                  @{
                                    @"name" : peripheral.name ? peripheral.name : @"",
-                                   @"deviceId" :[Utils uuid:peripheral.identifier],
+                                   @"deviceId" :[Utils uuidOfNSUUID:peripheral.identifier],
                                    @"RSSI" : RSSI,
                                    }
                                  

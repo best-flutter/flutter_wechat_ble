@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 +(NSString*)uuid:(CBUUID*)uuid;
 
++(NSString*)uuidOfNSUUID:(NSUUID*)uuid;
 @end
 
 NS_ASSUME_NONNULL_END

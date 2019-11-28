@@ -21,4 +21,17 @@
     return str;
     
 }
+
+
++(NSString*)uuidOfNSUUID:(NSUUID*)uuid{
+    NSString* str = [uuid UUIDString];
+       NSInteger len = [str length];
+       if(len == 4){
+           return [NSString stringWithFormat:@"0000%@-0000-1000-8000-00805F9B34FB",str];
+       }
+       if(len == 8){
+           return [NSString stringWithFormat:@"%@-0000-1000-8000-00805F9B34FB",str];
+       }
+       return str;
+}
 @end

@@ -7,6 +7,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a49504e8-50a5-4d1d-9443-294c25551650" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/example/ios/Runner-Bridging-Header.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/ios/bridge.swift" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/flutter_wechat_ble.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/flutter_wechat_ble.dart" afterDir="false" />
