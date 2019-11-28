@@ -1,5 +1,9 @@
 
-# 0.0.7
+# 0.0.8
+* Add getBluetoothAdapter in ios
+
+
+## 0.0.7
 
 * Add reconnect in native code
 
