@@ -409,9 +409,15 @@ static DeviceConfig config = new TbkDeviceConfig();
 
 ## Example
 
-![](images/1.jpg)![](images/2.jpg)![](images/3.jpg)
+<center  class="half">
+    <img src="images/1.jpg" width="200"/><img src="images/2.jpg" width="200"/><img src="images/3.jpg" width="200"/>
+</center>
 
-![](images/4.jpg)
+<center  class="half">
+    <img src="images/4.jpg" width="200"/>
+</center>
+
+
 
 
 
