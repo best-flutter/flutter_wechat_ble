@@ -410,7 +410,7 @@ static DeviceConfig config = new TbkDeviceConfig();
 ## Example
 
 <center  class="half">
-    <img src="images/1.jpg" width="200"/><img src="images/2.jpg" width="200"/><img src="images/3.jpg" width="200"/>
+    <img src="images/1.jpg" width="240"/>  <img src="images/2.jpg" width="240"/>  <img src="images/3.jpg" width="240"/>
 </center>
 
 <center  class="half">
