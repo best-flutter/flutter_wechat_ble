@@ -261,6 +261,7 @@ class FlutterWechatBle {
     FlutterWechatBle.allowDuplicatesKey = allowDuplicatesKey;
     FlutterWechatBle.services = services;
     FlutterWechatBle.interval = interval;
+    _devices.clear();
     var result =
         await _channel.invokeMethod('startBluetoothDevicesDiscovery', {});
     if (result[code] != null) {

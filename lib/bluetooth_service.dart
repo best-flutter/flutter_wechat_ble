@@ -1,11 +1,16 @@
 import 'package:flutter_wechat_ble/flutter_wechat_ble.dart';
 import 'dart:async';
+import 'dart:math';
 
 typedef void OnServiceDeviceStateChangeCallback(BluetoothServiceDevice device);
 typedef void OnServiceDeviceFoundCallback(BluetoothServiceDevice device);
 
 const int kDataTimeout = 500;
 const int kConnectTimeout = 10;
+const int kConnectRetryInterval = 500;
+const int kConnectRetryCount = 1;
+const int kMaxConnectRetryCount = 10;
+
 
 abstract class BleDeviceConfig extends DeviceConfig {
   //the default service id want to communicate
@@ -18,13 +23,17 @@ abstract class BleDeviceConfig extends DeviceConfig {
   //the default write characteristics id
   final String writeId;
 
+
+
   BleDeviceConfig(
       {this.serviceId,
       this.notifyId,
       this.writeId,
-      bool checkServicesAndCharacteristics = true,
+      bool checkServicesAndCharacteristics = false,
       Duration connectTimeout = const Duration(seconds: kConnectTimeout),
-      Duration dataTimeout = const Duration(milliseconds: kDataTimeout)})
+      Duration dataTimeout = const Duration(milliseconds: kDataTimeout),
+      Duration connectRetryInterval = const Duration(milliseconds:kConnectRetryInterval ),
+      int connectRetryCount = kConnectRetryCount})
       : super(
             checkServicesAndCharacteristics: checkServicesAndCharacteristics,
             connectTimeout: connectTimeout,
@@ -44,13 +53,21 @@ abstract class DeviceConfig {
   // time out of send data and receive data
   final Duration dataTimeout;
 
-  /// time out of connect to device
+  // time out of connect to device
   final Duration connectTimeout;
 
+
+  final Duration connectRetryInterval;
+
+
+  final int connectRetryCount;
+
   DeviceConfig(
-      {this.checkServicesAndCharacteristics = true,
+      {this.checkServicesAndCharacteristics,
       this.connectTimeout,
-      this.dataTimeout});
+      this.dataTimeout,
+      this.connectRetryCount,
+      this.connectRetryInterval});
 
   // is the device acceptable?
   bool accept(BleDevice device);
@@ -84,6 +101,7 @@ abstract class BluetoothServiceDevice {
 
   void onReceiveData(BleValue value);
 
+  // connect tot the device and do other prepare work
   dynamic startup();
 
   String get deviceId => device.deviceId;
@@ -226,13 +244,56 @@ class BluetoothServiceBleDevice extends BluetoothServiceDevice {
     }
   }
 
+  bool _connectTimeout;
+
+  _connectDevice() async{
+    _connectTimeout = false;
+    return Future.any([() async{
+      try{
+        await FlutterWechatBle.createBLEConnection(deviceId: deviceId);
+      } on BleError catch (e){
+        if(_config.connectRetryCount > 0){
+          for(int i=0, c = max(_config.connectRetryCount,kMaxConnectRetryCount); i < c; ++i ){
+            if(_connectTimeout){
+              return;
+            }
+            await Future.delayed(_config.connectRetryInterval);
+            try{
+              await FlutterWechatBle.createBLEConnection(deviceId: deviceId);
+              break;
+            }on BleError catch(e){
+              continue;
+            }
+          }
+          throw e;
+        }
+      }
+
+    }(), Future.delayed(_config.connectTimeout,(){
+      _connectTimeout = true;
+      return Future.error(new TimeoutException("Connect timeout"));
+    }) ]);
+  }
+
   /// startup the device
   /// we just do some work for prepare the device
   ///
   @override
   dynamic startup() async {
     // open connection
-    await FlutterWechatBle.createBLEConnection(deviceId: deviceId);
+    try{
+      await _connectDevice();
+    }on TimeoutException catch(e){
+
+      try{
+        await FlutterWechatBle.closeBLEConnection(deviceId: deviceId);
+      }catch(e){
+
+      }
+
+      throw e;
+    }
+
     // get services
     List<BleService> services =
         await FlutterWechatBle.getBLEDeviceServices(deviceId: deviceId);
@@ -241,6 +302,40 @@ class BluetoothServiceBleDevice extends BluetoothServiceDevice {
           await FlutterWechatBle.getBLEDeviceCharacteristics(
               deviceId: deviceId, serviceId: service.uuid);
     }
+
+    if(_config.checkServicesAndCharacteristics){
+      bool serviceOk = false;
+      bool writeOk = false;
+      bool notifyOk = false;
+      for(BleService service in services){
+        if(service.uuid == _config.serviceId){
+          serviceOk = true;
+          for(BleCharacteristic characteristic in service.characteristics){
+            if(characteristic.uuid == _config.writeId && characteristic.write){
+              writeOk = true;
+            }
+            if(characteristic.uuid == _config.notifyId && characteristic.notify){
+              notifyOk = true;
+            }
+          }
+          break;
+        }
+      }
+
+      if(!serviceOk){
+        throw new AssertionError("Cannot find service by serviceId ${_config.serviceId}");
+      }
+
+      if(!writeOk){
+        throw new AssertionError("Cannot find write characteristic by writeId ${_config.writeId}");
+      }
+
+      if(!notifyOk){
+        throw new AssertionError("Cannot find notify characteristic by notifyId ${_config.notifyId}");
+      }
+    }
+
+
 
     await setNotify(
         serviceId: _config.serviceId, characteristicId: _config.notifyId);
