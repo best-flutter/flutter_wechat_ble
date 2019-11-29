@@ -14,16 +14,6 @@ class AcrDeviceConfig extends BleDeviceConfig {
   }
 
   @override
-  void onClose(BluetoothService service, BluetoothServiceDevice device) {
-    // TODO: implement onClose
-  }
-
-  @override
-  void onExtraPack(BluetoothServiceDevice device,HexValue value) {
-    // TODO: implement onExtraPack
-  }
-
-  @override
   onStartup(BluetoothService service, BluetoothServiceDevice device) async {
     //这里需要等一下，否则容易收不到数据
     await Future.delayed(new Duration(milliseconds: 200));

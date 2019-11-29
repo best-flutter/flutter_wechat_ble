@@ -1,5 +1,8 @@
 
-# 0.0.9
+# 0.1.0
+* add param BluetoothService service in DeviceConfig.onExtraPack
+
+## 0.0.9
 * Add wiriteWithReturnData in BluetoothServiceDevice
 
 ## 0.0.8

@@ -70,7 +70,9 @@ abstract class DeviceConfig {
   // is the device acceptable?
   bool accept(BleDevice device);
   // this function will be called when  not in ask and answer mode
-  void onExtraPack(BluetoothServiceBleDevice device, HexValue value);
+  void onExtraPack(BluetoothServiceBleDevice device, HexValue value){
+
+  }
 
   /// handle the package logic
   HexValue onValueChange(BluetoothServiceBleDevice device, BleValue value);
@@ -79,10 +81,14 @@ abstract class DeviceConfig {
   BluetoothServiceDevice createBleServiceDevice(
       BluetoothService service, BleDevice device, DeviceConfig config);
 
-  dynamic onStartup(BluetoothService service, BluetoothServiceDevice device);
+  dynamic onStartup(BluetoothService service, BluetoothServiceDevice device){
+
+  }
 
   // called when the device is closed and released
-  void onClose(BluetoothService service, BluetoothServiceDevice device);
+  void onClose(BluetoothService service, BluetoothServiceDevice device){
+
+  }
 }
 
 ///
