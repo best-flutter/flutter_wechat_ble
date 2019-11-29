@@ -107,7 +107,11 @@ abstract class BluetoothServiceDevice {
 
   Future close();
 
+  //
   Future<HexValue> write(var value);
+
+  //
+  Future writeWithoutReturnData(var value);
 }
 
 abstract class HexValue {
@@ -367,6 +371,11 @@ class BluetoothServiceBleDevice extends BluetoothServiceDevice {
     }
 
     _timer = null;
+  }
+
+  @override
+  Future writeWithoutReturnData(value) {
+    return writeValue(_config.serviceId, _config.writeId, value);
   }
 }
 

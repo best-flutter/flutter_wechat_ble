@@ -1,5 +1,8 @@
 
-# 0.0.8
+# 0.0.9
+* Add wiriteWithReturnData in BluetoothServiceDevice
+
+## 0.0.8
 * Add getBluetoothAdapter in ios
 
 

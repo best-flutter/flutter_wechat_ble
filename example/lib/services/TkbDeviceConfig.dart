@@ -6,7 +6,8 @@ class TbkDeviceConfig extends BleDeviceConfig {
       : super(
             serviceId: "0000FFF0-0000-1000-8000-00805F9B34FB",
             notifyId: "0000FFF2-0000-1000-8000-00805F9B34FB",
-            writeId: "0000FFF1-0000-1000-8000-00805F9B34FB");
+            writeId: "0000FFF1-0000-1000-8000-00805F9B34FB",
+            dataTimeout: new Duration(seconds: 2));
 
   @override
   bool accept(BleDevice device) {
