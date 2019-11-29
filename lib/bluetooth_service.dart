@@ -70,7 +70,7 @@ abstract class DeviceConfig {
   // is the device acceptable?
   bool accept(BleDevice device);
   // this function will be called when  not in ask and answer mode
-  void onExtraPack(HexValue value);
+  void onExtraPack(BluetoothServiceBleDevice device, HexValue value);
 
   /// handle the package logic
   HexValue onValueChange(BluetoothServiceBleDevice device, BleValue value);
@@ -234,7 +234,7 @@ class BluetoothServiceBleDevice extends BluetoothServiceDevice {
           completer.complete(result);
         } else {
           //extra data
-          config.onExtraPack(result);
+          config.onExtraPack(this,result);
         }
       }
     } catch (e) {

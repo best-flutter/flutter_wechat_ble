@@ -20,7 +20,7 @@ class TbkDeviceConfig extends BleDeviceConfig {
   }
 
   @override
-  void onExtraPack(HexValue value) {
+  void onExtraPack(BluetoothServiceDevice device,HexValue value) {
     // TODO: implement onExtraPack
   }
 
