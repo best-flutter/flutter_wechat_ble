@@ -11,8 +11,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -163,23 +161,23 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
     private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 1;
     public synchronized void startBluetoothDevicesDiscovery(Result promise) {
         //检查权限
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {//如果 API level 是大于等于 23(Android 6.0) 时
-            //判断是否具有权限
-            if (ContextCompat.checkSelfPermission(registrar.activity(),
-                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                //判断是否需要向用户解释为什么需要申请该权限
-                if (ActivityCompat.shouldShowRequestPermissionRationale(registrar.activity(),
-                        Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                    Toast.makeText(registrar.activity(), "开始需要打开位置权限才可以搜索到Ble设备", Toast.LENGTH_SHORT).show();
-                }
-                //请求权限
-                ActivityCompat.requestPermissions(registrar.activity(),
-                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                        REQUEST_CODE_ACCESS_COARSE_LOCATION);
-                return;
-            }
-        }
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {//如果 API level 是大于等于 23(Android 6.0) 时
+//            //判断是否具有权限
+//            if (ContextCompat.checkSelfPermission(registrar.activity(),
+//                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//                //判断是否需要向用户解释为什么需要申请该权限
+//                if (ActivityCompat.shouldShowRequestPermissionRationale(registrar.activity(),
+//                        Manifest.permission.ACCESS_COARSE_LOCATION)) {
+//                    Toast.makeText(registrar.activity(), "开始需要打开位置权限才可以搜索到Ble设备", Toast.LENGTH_SHORT).show();
+//                }
+//                //请求权限
+//                ActivityCompat.requestPermissions(registrar.activity(),
+//                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+//                        REQUEST_CODE_ACCESS_COARSE_LOCATION);
+//                return;
+//            }
+//        }
 
         BluetoothAdapterResult ret = adapter.startScan();
         if (BluetoothAdapterResult.BluetoothAdapterResultOk == adapter.startScan()) {
