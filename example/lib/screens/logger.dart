@@ -53,7 +53,7 @@ class LoggerState extends State<Logger> {
           widget.device, widget.service, widget.characteristic, value);
       BleModel.logger.add("Write value success");
     } on BleError catch (e) {
-      BleModel.logger..add("Write value fail ${e.message}");
+      BleModel.logger.add("Write value fail ${e.message}");
     }
   }
 
