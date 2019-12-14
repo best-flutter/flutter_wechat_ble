@@ -27,6 +27,7 @@ abstract class BleDeviceConfig extends DeviceConfig {
       this.notifyId,
       this.writeId,
       bool checkServicesAndCharacteristics = false,
+      bool enable = true,
       Duration connectTimeout = const Duration(seconds: kConnectTimeout),
       Duration dataTimeout = const Duration(milliseconds: kDataTimeout),
       Duration connectRetryInterval =
@@ -36,6 +37,7 @@ abstract class BleDeviceConfig extends DeviceConfig {
             checkServicesAndCharacteristics: checkServicesAndCharacteristics,
             connectTimeout: connectTimeout,
             dataTimeout: dataTimeout,
+            enable: enable,
             connectRetryInterval: connectRetryInterval,
             connectRetryCount: connectRetryCount);
 
@@ -60,19 +62,20 @@ abstract class DeviceConfig {
 
   final int connectRetryCount;
 
+  bool enable;
+
   DeviceConfig(
       {this.checkServicesAndCharacteristics,
       this.connectTimeout,
       this.dataTimeout,
       this.connectRetryCount,
-      this.connectRetryInterval});
+      this.connectRetryInterval,
+      this.enable});
 
   // is the device acceptable?
   bool accept(BleDevice device);
   // this function will be called when  not in ask and answer mode
-  void onExtraPack(BluetoothServiceBleDevice device, HexValue value){
-
-  }
+  void onExtraPack(BluetoothServiceBleDevice device, HexValue value) {}
 
   /// handle the package logic
   HexValue onValueChange(BluetoothServiceBleDevice device, BleValue value);
@@ -81,14 +84,10 @@ abstract class DeviceConfig {
   BluetoothServiceDevice createBleServiceDevice(
       BluetoothService service, BleDevice device, DeviceConfig config);
 
-  dynamic onStartup(BluetoothService service, BluetoothServiceDevice device){
-
-  }
+  dynamic onStartup(BluetoothService service, BluetoothServiceDevice device) {}
 
   // called when the device is closed and released
-  void onClose(BluetoothService service, BluetoothServiceDevice device){
-
-  }
+  void onClose(BluetoothService service, BluetoothServiceDevice device) {}
 }
 
 ///
@@ -240,7 +239,7 @@ class BluetoothServiceBleDevice extends BluetoothServiceDevice {
           completer.complete(result);
         } else {
           //extra data
-          config.onExtraPack(this,result);
+          config.onExtraPack(this, result);
         }
       }
     } catch (e) {
@@ -386,12 +385,16 @@ class BluetoothServiceBleDevice extends BluetoothServiceDevice {
 }
 
 class BluetoothService {
-  final List<DeviceConfig> _configs;
+  List<DeviceConfig> _configs;
   Map<String, BluetoothServiceDevice> _serviceDevices = {};
 
   BluetoothService({
     List<DeviceConfig> configs,
   }) : this._configs = configs;
+
+  void setConfigs(List<DeviceConfig> configs) {
+    this._configs = configs;
+  }
 
   BluetoothServiceDevice createBleDevice(
       BleDevice device, DeviceConfig config) {
@@ -459,7 +462,7 @@ class BluetoothService {
 
   void _onRowDeviceFound(BleDevice device) {
     for (DeviceConfig config in _configs) {
-      if (config.accept(device)) {
+      if (config.enable && config.accept(device)) {
         BluetoothServiceDevice serviceDevice =
             config.createBleServiceDevice(this, device, config);
         this._serviceDevices[device.deviceId] = serviceDevice;
