@@ -65,9 +65,14 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
     }
 
     private void runOnUIThread(Runnable runnable){
-        Message msg = Message.obtain();
-        msg.obj = runnable;
-        hander.sendMessage(msg);
+        if(Looper.myLooper() == Looper.getMainLooper()){
+            runnable.run();
+        }else{
+            Message msg = Message.obtain();
+            msg.obj = runnable;
+            hander.sendMessage(msg);
+        }
+
     }
 
 
@@ -161,24 +166,6 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
     private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 1;
     public synchronized void startBluetoothDevicesDiscovery(Result promise) {
         //检查权限
-//
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {//如果 API level 是大于等于 23(Android 6.0) 时
-//            //判断是否具有权限
-//            if (ContextCompat.checkSelfPermission(registrar.activity(),
-//                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//                //判断是否需要向用户解释为什么需要申请该权限
-//                if (ActivityCompat.shouldShowRequestPermissionRationale(registrar.activity(),
-//                        Manifest.permission.ACCESS_COARSE_LOCATION)) {
-//                    Toast.makeText(registrar.activity(), "开始需要打开位置权限才可以搜索到Ble设备", Toast.LENGTH_SHORT).show();
-//                }
-//                //请求权限
-//                ActivityCompat.requestPermissions(registrar.activity(),
-//                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-//                        REQUEST_CODE_ACCESS_COARSE_LOCATION);
-//                return;
-//            }
-//        }
-
         BluetoothAdapterResult ret = adapter.startScan();
         if (BluetoothAdapterResult.BluetoothAdapterResultOk == adapter.startScan()) {
             promise.success(new HashMap<String,Object>());
@@ -200,13 +187,27 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
             retToCallback(BluetoothAdapterResult.BluetoothAdapterResultNotInit, promise);
             return;
         }
-        DeviceAdapter deviceAdapter = null;
         try {
-            deviceAdapter = getConnectedDevice(deviceId);
             String serviceId = (String) data.get("serviceId");
             String characteristicId = (String) data.get("characteristicId");
-            readListener = promise;
-            deviceAdapter.read(serviceId, characteristicId);
+
+            adapter.readValue(deviceId, serviceId, characteristicId, new CharacteristicActionListener() {
+                @Override
+                public void onResult(DeviceAdapter deviceAdapter,BluetoothGattCharacteristic characteristic, final boolean success) {
+                    runOnUIThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (success) {
+                                promise.success(new HashMap<String,Object>());
+                            } else {
+                                processError(SYSTEM_ERROR, "Read value failed", promise);
+                            }
+                        }
+                    });
+                }
+            });
+
+
         } catch (BluetoothException e) {
             retToCallback(e.ret, promise);
         }
@@ -218,20 +219,31 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
             retToCallback(BluetoothAdapterResult.BluetoothAdapterResultNotInit, promise);
             return;
         }
-        DeviceAdapter deviceAdapter = null;
         try {
-            deviceAdapter = getConnectedDevice(deviceId);
             String serviceId = (String) data.get("serviceId");
             String characteristicId = (String) data.get("characteristicId");
             String value = (String) data.get("value");
             byte[] bytes = HexUtil.decodeHex(value);
             Log.d("BLE", String.format("write value %s", value ) );
            // writeListener = promise;
-            deviceAdapter.write(serviceId, characteristicId, bytes);
+            adapter.writeValue(deviceId, serviceId, characteristicId, bytes, new CharacteristicActionListener() {
+                @Override
+                public void onResult(DeviceAdapter deviceAdapter,BluetoothGattCharacteristic characteristic, final boolean success) {
+                    runOnUIThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (success) {
+                                promise.success(new HashMap<String,Object>());
+                            } else {
+                                processError(SYSTEM_ERROR, "Write value failed", promise);
+                            }
+                        }
+                    });
+                }
+            });
             Log.d("BLE", String.format("write value success %s, waiting for notify", value ) );
         } catch (BluetoothException e) {
 
-           // writeListener = null;
             Log.d("BLE", String.format("write value error %s %s",String.valueOf(e.ret),e.getMessage() ) );
             retToCallback(e.ret, promise);
         }
@@ -336,21 +348,31 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
 
 
 
-    private Result notifyListener;
     public synchronized void notifyBLECharacteristicValueChange(Map data, final Result promise) {
         String deviceId = (String) data.get("deviceId");
         if (deviceId == null) {
             retToCallback(BluetoothAdapterResult.BluetoothAdapterResultNotInit, promise);
             return;
         }
-        DeviceAdapter deviceAdapter = null;
         try {
-            deviceAdapter = getConnectedDevice(deviceId);
             String serviceId = (String) data.get("serviceId");
             String characteristicId = (String) data.get("characteristicId");
             boolean notify = (Boolean) data.get("state");
-            notifyListener = promise;
-            deviceAdapter.setNotify(serviceId, characteristicId, notify);
+            adapter.setNotify(deviceId,serviceId,characteristicId,notify, new CharacteristicActionListener() {
+                @Override
+                public void onResult(DeviceAdapter device, BluetoothGattCharacteristic characteristic, final boolean success) {
+                    runOnUIThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (success) {
+                                promise.success(new HashMap<String,Object>());
+                            } else {
+                                processError(SYSTEM_ERROR, "SetNotify value failed", promise);
+                            }
+                        }
+                    });
+                }
+            });
             //promise.success(new HashMap<String,Object>());
         } catch (BluetoothException e) {
             retToCallback(e.ret, promise);
@@ -358,25 +380,9 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
     }
 
 
-    @Override
-    public void onNotifyChanged(DeviceAdapter device, BluetoothGattCharacteristic characteristic, boolean success) {
-        if(this.notifyListener!=null){
-            final Result notifyListener = this.notifyListener;
-            this.notifyListener = null;
-            if(success){
-               runOnUIThread(new Runnable() {
-                   @Override
-                   public void run() {
-                       notifyListener.success(new HashMap<>());
-                   }
-               });
-            }else{
-                processError(SYSTEM_ERROR,"",notifyListener);
-            }
-        }
-    }
 
     private void processError(final String code, final String message, final Result promise) {
+
        runOnUIThread(new Runnable() {
            @Override
            public void run() {
@@ -450,8 +456,6 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
     }
 
     private Result connectListener;
-    private Result writeListener;
-    private Result readListener;
 
     @Override
     public synchronized void onDeviceConnected(final DeviceAdapter device) {
@@ -486,30 +490,9 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
        });
     }
 
-    @Override
-    public synchronized void onCharacteristicWrite(DeviceAdapter device, BluetoothGattCharacteristic characteristic, final boolean success) {
-        Log.d("BLE","onCharacteristicWrite");
-        if (writeListener != null) {
-            if (success) {
-                writeListener.success(new HashMap<String,Object>());
-            } else {
-                processError(SYSTEM_ERROR, "Write value failed", writeListener);
-            }
-            writeListener = null;
-        }
-    }
 
-    @Override
-    public synchronized void onCharacteristicRead(DeviceAdapter device, final BluetoothGattCharacteristic characteristic, final boolean success) {
-        if (readListener != null) {
-            if (success) {
-                readListener.success(HexUtil.encodeHex(characteristic.getValue()));
-            } else {
-                processError(SYSTEM_ERROR, "Read value failed", readListener);
-            }
-            readListener = null;
-        }
-    }
+
+
 
 
 

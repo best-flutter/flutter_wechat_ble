@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.os.Build;
+import android.util.Log;
 
 import java.util.Collection;
 import java.util.Map;
@@ -95,9 +96,12 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
             DeviceAdapter adapter = entry.getValue();
             adapter.disconnect();
         }
+        listenerMap.clear();
         connectedDevices.clear();
         deviceMap.clear();
         mBluetoothAdapter = null;
+
+
     }
 
 
@@ -211,6 +215,59 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
 
     }
 
+    private Map<String,CharacteristicActionListener> listenerMap = new ConcurrentHashMap<>();
+
+    private String getKey(String name,String deviceId,String serviceId,String characteristicId){
+        return new StringBuilder().append(name).append(":").append(deviceId).append(":").append(serviceId).append(":").append(characteristicId).toString();
+    }
+
+    private void setListener(String name,String deviceId,String serviceId,String characteristicId,CharacteristicActionListener listener){
+        listenerMap.put(getKey(name,deviceId,serviceId,characteristicId),listener);
+    }
+
+    private CharacteristicActionListener getActionListener(String name,String deviceId,String serviceId,String characteristicId){
+        return listenerMap.get(getKey(name,deviceId,serviceId,characteristicId));
+    }
+
+
+    public static final String NAME_WRITE = "w";
+    public static final String NAME_READ = "r";
+    public static final String NAME_NOTIFY = "n";
+
+
+
+
+
+    public void writeValue(
+            String deviceId, String serviceId, String characteristicId, byte[] value,CharacteristicActionListener listener ) throws BluetoothException {
+        DeviceAdapter deviceAdapter =getConnectedDevice(deviceId);
+        if(deviceAdapter==null){
+            throw new BluetoothException(BluetoothAdapterResult.BluetoothAdapterResultDeviceNotConnected);
+        }
+        setListener(NAME_WRITE,deviceId,serviceId,characteristicId,listener);
+        deviceAdapter.write(serviceId,characteristicId,value);
+    }
+
+    public void readValue(
+            String deviceId, String serviceId, String characteristicId,CharacteristicActionListener listener ) throws BluetoothException {
+        DeviceAdapter deviceAdapter =getConnectedDevice(deviceId);
+        if(deviceAdapter==null){
+            throw new BluetoothException(BluetoothAdapterResult.BluetoothAdapterResultDeviceNotConnected);
+        }
+        setListener(NAME_READ,deviceId,serviceId,characteristicId,listener);
+        deviceAdapter.read(serviceId,characteristicId);
+    }
+
+    public void setNotify(
+            String deviceId, String serviceId, String characteristicId,boolean notify,CharacteristicActionListener listener ) throws BluetoothException {
+        DeviceAdapter deviceAdapter =getConnectedDevice(deviceId);
+        if(deviceAdapter==null){
+            throw new BluetoothException(BluetoothAdapterResult.BluetoothAdapterResultDeviceNotConnected);
+        }
+        setListener(NAME_NOTIFY,deviceId,serviceId,characteristicId,listener);
+        deviceAdapter.setNotify(serviceId,characteristicId,notify);
+    }
+
 
     @Override
     public void onDisconnected(DeviceAdapter device) {
@@ -243,25 +300,39 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
         }
     }
 
+
+
     @Override
     public void onCharacteristicWrite(DeviceAdapter device, BluetoothGattCharacteristic characteristic, boolean success) {
-        if (listener != null) {
-            listener.onCharacteristicWrite(device, characteristic, success);
+
+
+        CharacteristicActionListener listener = getActionListener(NAME_WRITE,device.getDeviceId(),Utils.getUuidOfService(characteristic.getService()),Utils.getUuidOfCharacteristic(characteristic));
+        if(listener==null){
+            Log.e("BLE","Cannot find listener of characteristic"+characteristic);
+            return;
         }
+        listener.onResult(device,characteristic,success);
+
     }
 
     @Override
     public void onCharacteristicRead(DeviceAdapter device, BluetoothGattCharacteristic characteristic, boolean success) {
-        if (listener != null) {
-            listener.onCharacteristicRead(device, characteristic, success);
+        CharacteristicActionListener listener = getActionListener(NAME_READ,device.getDeviceId(),Utils.getUuidOfService(characteristic.getService()),Utils.getUuidOfCharacteristic(characteristic));
+        if(listener==null){
+            Log.e("BLE","Cannot find listener of characteristic"+characteristic);
+            return;
         }
+        listener.onResult(device,characteristic,success);
     }
 
     @Override
-    public void onNotifyChanged(DeviceAdapter deviceAdapter, BluetoothGattCharacteristic characteristic,boolean success) {
-        if (listener != null) {
-            listener.onNotifyChanged(deviceAdapter, characteristic, success);
+    public void onNotifyChanged(DeviceAdapter device, BluetoothGattCharacteristic characteristic,boolean success) {
+        CharacteristicActionListener listener = getActionListener(NAME_NOTIFY,device.getDeviceId(),Utils.getUuidOfService(characteristic.getService()),Utils.getUuidOfCharacteristic(characteristic));
+        if(listener==null){
+            Log.e("BLE","Cannot find listener of characteristic"+characteristic);
+            return;
         }
+        listener.onResult(device,characteristic,success);
     }
 
 

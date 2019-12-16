@@ -13,7 +13,9 @@ import android.os.Build;
 import android.util.Log;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by jzoom on 2018/1/26.
@@ -298,7 +300,13 @@ class DeviceAdapter extends BluetoothGattCallback {
 
     }
 
-    public synchronized void write(String serviceId, String characteristicId, byte[] bytes) throws BluetoothException {
+
+
+
+    public synchronized void write(
+            String serviceId,
+            String characteristicId,
+            byte[] bytes) throws BluetoothException {
         BluetoothGattService bluetoothGattService = getService(serviceId);
         if (bluetoothGattService == null) {
             throw new BluetoothException(BluetoothAdapterResult.BluetoothAdapterResultServiceNotFound);
@@ -307,6 +315,7 @@ class DeviceAdapter extends BluetoothGattCallback {
         if (characteristic == null) {
             throw new BluetoothException(BluetoothAdapterResult.BluetoothAdapterResultCharacteristicsNotFound);
         }
+
         characteristic.setValue(bytes);
         this.gatt.writeCharacteristic(characteristic);
     }
