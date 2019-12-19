@@ -1,4 +1,4 @@
-package org.zoomdev.flutter.ble;
+package org.zoomdev.ble;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 

@@ -1,12 +1,12 @@
-package org.zoomdev.flutter.ble;
+package org.zoomdev.ble;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.os.Build;
 
-class Utils {
-    static String getUuidOfService(BluetoothGattService service) {
+public class Utils {
+    public static String getUuidOfService(BluetoothGattService service) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             return service.getUuid().toString().toUpperCase();
         } else {
@@ -14,7 +14,7 @@ class Utils {
         }
     }
 
-    static String getUuidOfCharacteristic(BluetoothGattCharacteristic characteristic) {
+    public static String getUuidOfCharacteristic(BluetoothGattCharacteristic characteristic) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             return characteristic.getUuid().toString().toUpperCase();
         } else {
@@ -28,7 +28,7 @@ class Utils {
      * @param device
      * @return
      */
-    static String getDeviceId(BluetoothDevice device) {
+    public static String getDeviceId(BluetoothDevice device) {
         //这里只要返回唯一就行
         return new StringBuilder().append(device.getAddress()).append(device.hashCode()).toString();//return device.getAddress();
     }

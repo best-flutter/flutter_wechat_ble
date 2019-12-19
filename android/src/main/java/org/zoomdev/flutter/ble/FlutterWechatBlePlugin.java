@@ -1,17 +1,23 @@
 package org.zoomdev.flutter.ble;
 
-import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.widget.Toast;
+
+import org.zoomdev.ble.BleAdapter;
+import org.zoomdev.ble.BleListener;
+import org.zoomdev.ble.BluetoothAdapterResult;
+import org.zoomdev.ble.BluetoothException;
+import org.zoomdev.ble.CharacteristicActionListener;
+import org.zoomdev.ble.ConnectionListener;
+import org.zoomdev.ble.DeviceAdapter;
+import org.zoomdev.ble.HexUtil;
+import org.zoomdev.ble.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -431,7 +437,6 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
             retToCallback(BluetoothAdapterResult.BluetoothAdapterResultNotInit, promise);
             return;
         }
-        this.connectListener = promise;
         if (BluetoothAdapterResult.BluetoothAdapterResultOk != adapter.disconnectDevice(deviceId)) {
             retToCallback(BluetoothAdapterResult.BluetoothAdapterResultNotInit, promise);
             return;
@@ -441,33 +446,43 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
     }
 
 
-    public synchronized void createBLEConnection(Map data, Result promise) {
+    public synchronized void createBLEConnection(Map data, final Result promise) {
         String deviceId = (String) data.get("deviceId");
         if (deviceId == null) {
             retToCallback(BluetoothAdapterResult.BluetoothAdapterResultNotInit, promise);
             return;
         }
-        this.connectListener = promise;
-        if (BluetoothAdapterResult.BluetoothAdapterResultOk != adapter.connectDevice(deviceId)) {
+        if (BluetoothAdapterResult.BluetoothAdapterResultOk != adapter.connectDevice(deviceId, new ConnectionListener() {
+            @Override
+            public void onDeviceConnected(final DeviceAdapter device, boolean success) {
+                if(success){
+
+                    runOnUIThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Map map = new HashMap();
+                            map.put("deviceId", device.getDeviceId());
+                            promise.success(map);
+
+                        }
+                    });
+                }else{
+                    processError(CONNECTION_FAIL, "Connect to device failed", promise);
+                }
+            }
+        })) {
             retToCallback(BluetoothAdapterResult.BluetoothAdapterResultNotInit, promise);
             return;
         }
 
     }
 
-    private Result connectListener;
 
     @Override
     public synchronized void onDeviceConnected(final DeviceAdapter device) {
        runOnUIThread(new Runnable() {
            @Override
            public void run() {
-               if (connectListener != null) {
-                   Map map = new HashMap();
-                   map.put("deviceId", device.getDeviceId());
-                   connectListener.success(map);
-                   connectListener = null;
-               }
 
                dispatchStateChange(device.getDeviceId(), true);
            }
@@ -480,11 +495,6 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
        runOnUIThread(new Runnable() {
            @Override
            public void run() {
-               if (connectListener != null) {
-                   processError(CONNECTION_FAIL, "Connect to device failed", connectListener);
-                   connectListener = null;
-               }
-
                dispatchStateChange(device.getDeviceId(), false);
            }
        });

@@ -1,8 +1,8 @@
-package org.zoomdev.flutter.ble;
+package org.zoomdev.ble;
 
-class BluetoothException extends Exception {
+public class BluetoothException extends Exception {
 
-    protected final BluetoothAdapterResult ret;
+    public final BluetoothAdapterResult ret;
 
     BluetoothException(BluetoothAdapterResult ret, String message) {
         super(message);

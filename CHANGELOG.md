@@ -1,5 +1,9 @@
 
-# 0.1.2
+# 0.1.3
+
+* Fix connection bug in android
+
+## 0.1.2
 * Fix HexUtils.encodeHex bug
 
 ## 0.1.1

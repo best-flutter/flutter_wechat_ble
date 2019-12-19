@@ -130,7 +130,16 @@ class _DeviceListState extends State<DeviceList> {
           new Expanded(
               child: new ListView(
             children: render(context, devices),
-          ))
+          )),
+          new RaisedButton(onPressed: () async{
+            await bluetoothService.stopScan();
+            for(BluetoothServiceDevice device in devices){
+              bluetoothService.startupDevice(device.deviceId).then((data) async{
+                HexValue value = await device.write("000062");
+              });
+            }
+
+          },child: new Text("Copnnect to all"),)
         ],
       ),
     );

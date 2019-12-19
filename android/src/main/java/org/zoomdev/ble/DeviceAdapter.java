@@ -1,4 +1,4 @@
-package org.zoomdev.flutter.ble;
+package org.zoomdev.ble;
 
 import android.annotation.TargetApi;
 import android.bluetooth.BluetoothDevice;
@@ -13,16 +13,14 @@ import android.os.Build;
 import android.util.Log;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by jzoom on 2018/1/26.
  */
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-class DeviceAdapter extends BluetoothGattCallback {
+public class DeviceAdapter extends BluetoothGattCallback {
 
     private boolean connected;
     private BluetoothGatt gatt;
@@ -262,6 +260,17 @@ class DeviceAdapter extends BluetoothGattCallback {
     public synchronized String getName() {
         return device.getName();
     }
+
+    public ConnectionListener getConnectionListener() {
+        return connectionListener;
+    }
+
+    ConnectionListener connectionListener;
+    public void setConnectionListener(ConnectionListener listener) {
+        this.connectionListener = listener;
+    }
+
+
 
 
     public static interface GetServicesListener {

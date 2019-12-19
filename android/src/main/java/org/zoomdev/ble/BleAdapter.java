@@ -1,4 +1,4 @@
-package org.zoomdev.flutter.ble;
+package org.zoomdev.ble;
 
 import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by jzoom on 2018/1/4.
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
+public class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
 
 
     private final BleScanner scanner;
@@ -165,7 +165,7 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
         return BluetoothAdapterResult.BluetoothAdapterResultOk;
     }
 
-    public synchronized BluetoothAdapterResult connectDevice(String deviceId) {
+    public synchronized BluetoothAdapterResult connectDevice(String deviceId,ConnectionListener listener) {
         if (mBluetoothAdapter == null) {
             return BluetoothAdapterResult.BluetoothAdapterResultNotInit;
         }
@@ -180,7 +180,7 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
             //直接返回结果,表示在缓存里面已经有了
             if (connectedDevice.isConnected()) {
                 if(listener!=null){
-                    listener.onDeviceConnected(connectedDevice);
+                    listener.onDeviceConnected(connectedDevice,true);
                 }
             }else{
                // connectedDevice.connect(context);
@@ -192,7 +192,8 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
         connectedDevices.put(deviceId,device);
         //如果已经在连接了,就不用连接了
         device.connect(context);
-
+        device.setConnectionListener(listener);
+        setListener(device.getDeviceId(),listener);
         return BluetoothAdapterResult.BluetoothAdapterResultOk;
 
     }
@@ -215,7 +216,7 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
 
     }
 
-    private Map<String,CharacteristicActionListener> listenerMap = new ConcurrentHashMap<>();
+    private Map<String,Object> listenerMap = new ConcurrentHashMap<>();
 
     private String getKey(String name,String deviceId,String serviceId,String characteristicId){
         return new StringBuilder().append(name).append(":").append(deviceId).append(":").append(serviceId).append(":").append(characteristicId).toString();
@@ -226,14 +227,19 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
     }
 
     private CharacteristicActionListener getActionListener(String name,String deviceId,String serviceId,String characteristicId){
-        return listenerMap.get(getKey(name,deviceId,serviceId,characteristicId));
+        return (CharacteristicActionListener)listenerMap.remove(getKey(name,deviceId,serviceId,characteristicId));
     }
-
+    private ConnectionListener getConnectionListener(String deviceId){
+        return (ConnectionListener)listenerMap.remove(deviceId);
+    }
 
     public static final String NAME_WRITE = "w";
     public static final String NAME_READ = "r";
     public static final String NAME_NOTIFY = "n";
 
+    public void setListener(String deviceId,ConnectionListener listener){
+        listenerMap.put(deviceId,listener);
+    }
 
 
 
@@ -275,6 +281,7 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
         if (listener != null) {
             listener.onDeviceDisconnected(device);
         }
+
     }
 
     @Override
@@ -283,12 +290,20 @@ class BleAdapter implements BleScanner.BleScannerListener, DeviceListener {
         if (listener != null) {
             listener.onDeviceConnected(device);
         }
+        ConnectionListener connectionListener = getConnectionListener(device.getDeviceId());
+        if(connectionListener!=null){
+            connectionListener.onDeviceConnected(device,true);
+        }
     }
 
     @Override
     public void onConnectFailed(DeviceAdapter device) {
         if (listener != null) {
             listener.onDeviceConnectFailed(device);
+        }
+        ConnectionListener connectionListener = getConnectionListener(device.getDeviceId());
+        if(connectionListener!=null){
+            connectionListener.onDeviceConnected(device,false);
         }
     }
 
