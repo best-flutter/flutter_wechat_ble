@@ -1,6 +1,8 @@
+import 'package:easy_alert/easy_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_wechat_ble_example/services/TkbDeviceConfig.dart';
 import 'package:flutter_wechat_ble/flutter_wechat_ble.dart';
+import 'package:simple_permissions/simple_permissions.dart';
 
 class ConnectToTkb extends StatefulWidget {
   @override
@@ -20,6 +22,15 @@ class _ConnectToTkbState extends State<ConnectToTkb> {
   }
 
   void startup() async {
+    if (!await SimplePermissions.checkPermission(
+        Permission.AccessCoarseLocation)) {
+      if (PermissionStatus.authorized !=
+          await SimplePermissions.requestPermission(
+              Permission.AccessCoarseLocation)) {
+        Alert.alert(context, title: "请打开蓝牙");
+        return;
+      }
+    }
     BluetoothService bluetoothService = BluetoothService.getInstance();
     bluetoothService.setEnable(index: 0,enable: true);
     bluetoothService.setEnable(index: 1,enable: false);

@@ -422,6 +422,16 @@ class BluetoothService {
         .where((BluetoothServiceDevice device) => device.connected);
   }
 
+  // 使得所有配置可用
+  void enableAll(){
+    _configs.forEach((DeviceConfig config)=>config.enable=true);
+  }
+
+  // 使得所有配置不可用
+  void disableAll(){
+    _configs.forEach((DeviceConfig config)=>config.enable=false);
+  }
+
   // 通过配置的下标后者标志(tag)来控制是否启用
   void setEnable({int index, bool enable: true, String tag}) {
     if (index != null) {

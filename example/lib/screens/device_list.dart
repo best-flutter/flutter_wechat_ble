@@ -84,6 +84,7 @@ class _DeviceListState extends State<DeviceList> {
       }
     }
     BluetoothService bluetoothService = BluetoothService.getInstance();
+    bluetoothService.enableAll();
     setState(() {
       devices.addAll(bluetoothService.getDevices());
     });

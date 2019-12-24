@@ -7,6 +7,7 @@ import 'package:flutter_wechat_ble_example/screens/device.dart';
 import 'package:flutter_wechat_ble_example/services/BleModel.dart';
 import 'package:flutter_wechat_ble_example/widgets/ErrorView.dart';
 import 'package:flutter_wechat_ble_example/widgets/LoadingView.dart';
+import 'package:simple_permissions/simple_permissions.dart';
 
 class BleHelper extends StatefulWidget {
   @override
@@ -80,6 +81,15 @@ class BleHelperState extends State<BleHelper> {
   }
 
   void startup() async {
+    if (!await SimplePermissions.checkPermission(
+        Permission.AccessCoarseLocation)) {
+      if (PermissionStatus.authorized !=
+          await SimplePermissions.requestPermission(
+              Permission.AccessCoarseLocation)) {
+        Alert.alert(context, title: "请打开蓝牙");
+        return;
+      }
+    }
     setState(() {
       data.clear();
       loading = true;
