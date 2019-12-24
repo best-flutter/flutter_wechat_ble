@@ -20,10 +20,13 @@ class _ConnectToTkbState extends State<ConnectToTkb> {
   }
 
   void startup() async {
+    BluetoothService bluetoothService = BluetoothService.getInstance();
+    bluetoothService.setEnable(index: 0,enable: true);
+    bluetoothService.setEnable(index: 1,enable: false);
+    bluetoothService.setEnable(index: 2,enable: false);
     await setState(() {
       messages.add("searing devices...");
     });
-    BluetoothService bluetoothService = BluetoothService.getInstance();
     await bluetoothService.shutdown();
     bluetoothService.onServiceDeviceFound(onServiceDeviceFound);
     await bluetoothService.startScan();
@@ -36,9 +39,6 @@ class _ConnectToTkbState extends State<ConnectToTkb> {
     });
     try {
       BluetoothService bluetoothService = BluetoothService.getInstance();
-      bluetoothService.setEnable(index: 0,enable: true);
-      bluetoothService.setEnable(index: 1,enable: false);
-      bluetoothService.setEnable(index: 2,enable: false);
       await bluetoothService.stopScan();
       await bluetoothService.startupDevice(device.deviceId);
 
