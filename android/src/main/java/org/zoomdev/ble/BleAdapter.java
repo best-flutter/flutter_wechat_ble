@@ -9,7 +9,9 @@ import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -109,7 +111,6 @@ public class BleAdapter implements BleScanner.BleScannerListener, DeviceListener
         if (mBluetoothAdapter == null) {
             return BluetoothAdapterResult.BluetoothAdapterResultNotInit;
         }
-        deviceMap.clear();
         scanner.startScan(mBluetoothAdapter, this);
         discovering = true;
         return BluetoothAdapterResult.BluetoothAdapterResultOk;
@@ -199,7 +200,7 @@ public class BleAdapter implements BleScanner.BleScannerListener, DeviceListener
     }
 
     @Override
-    public void onDeviceFound(BluetoothDevice device, int rssi) {
+    public synchronized void onDeviceFound(BluetoothDevice device, int rssi) {
         String uuid = Utils.getDeviceId(device);
 
         DeviceAdapter deviceAdapter = deviceMap.get(uuid);
@@ -362,5 +363,17 @@ public class BleAdapter implements BleScanner.BleScannerListener, DeviceListener
     private boolean discovering;
     public  boolean isDiscovering() {
         return discovering;
+    }
+
+    public synchronized void notifyDevices() {
+        if(deviceMap.size()>0){
+            List<DeviceAdapter> list = new ArrayList<>();
+            list.addAll(deviceMap.values());
+
+            for(DeviceAdapter deviceAdapter : list){
+                listener.onDeviceFound(deviceAdapter);
+            }
+        }
+
     }
 }

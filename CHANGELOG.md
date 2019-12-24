@@ -1,5 +1,10 @@
 
-# 0.1.3
+
+# 0.1.4
+
+* Dont clean devices after calling startBluetoothDevicesDiscovery
+
+## 0.1.3
 
 * Fix connection bug in android
 

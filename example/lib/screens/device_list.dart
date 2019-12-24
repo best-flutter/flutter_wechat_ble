@@ -5,6 +5,8 @@ import 'package:flutter_wechat_ble_example/screens/DeviceItem.dart';
 import 'package:flutter_wechat_ble_example/services/AcrDeviceConfig.dart';
 import 'package:flutter_wechat_ble_example/services/R30DeviceConfig.dart';
 import 'package:flutter_wechat_ble_example/services/TkbDeviceConfig.dart';
+import 'package:simple_permissions/simple_permissions.dart';
+import 'package:easy_alert/easy_alert.dart';
 
 class DeviceList extends StatefulWidget {
   @override
@@ -59,12 +61,6 @@ class InnerDeviceItem extends StatelessWidget {
 }
 
 class _DeviceListState extends State<DeviceList> {
-  static BluetoothService bluetoothService = new BluetoothService(configs: [
-    new TbkDeviceConfig(),
-    new R30DeviceConfig(),
-    new AcrDeviceConfig()
-  ]);
-
   String message = "Loading...";
 
   List<BluetoothServiceDevice> devices = [];
@@ -78,7 +74,20 @@ class _DeviceListState extends State<DeviceList> {
   }
 
   void startup() async {
-    await bluetoothService.shutdown();
+    if (!await SimplePermissions.checkPermission(
+        Permission.AccessCoarseLocation)) {
+      if (PermissionStatus.authorized !=
+          await SimplePermissions.requestPermission(
+              Permission.AccessCoarseLocation)) {
+        Alert.alert(context, title: "请打开蓝牙");
+        return;
+      }
+    }
+    BluetoothService bluetoothService = BluetoothService.getInstance();
+    setState(() {
+      devices.addAll(bluetoothService.getDevices());
+    });
+    // await bluetoothService.shutdown();
     bluetoothService.onServiceDeviceFound(onServiceDeviceFound);
     bluetoothService.onServiceDeviceStateChange((dev) {
       setState(() {});
@@ -91,30 +100,6 @@ class _DeviceListState extends State<DeviceList> {
     setState(() {
       this.devices.add(device);
     });
-
-//    try {
-//      await bluetoothService.startupDevice(device.deviceId);
-//
-//
-//      print("write data");
-//      HexValue value = await device.write("000062");
-//      print("write data success");
-//      await setState(() {
-//        messages.add("writing data success, response: ${value.string}");
-//      });
-//      print("=================" + value.string);
-//    } on BleError catch (e) {
-//      print(
-//          ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${e.code} ${e.message}");
-//      setState(() {
-//        messages.add("Ble error : ${e.code} ${e.message}");
-//      });
-//    } catch (e) {
-//      print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> $e");
-//      setState(() {
-//        messages.add("other error : ${e.code} ${e.message}");
-//      });
-//    }
   }
 
   @override
@@ -131,15 +116,21 @@ class _DeviceListState extends State<DeviceList> {
               child: new ListView(
             children: render(context, devices),
           )),
-          new RaisedButton(onPressed: () async{
-            await bluetoothService.stopScan();
-            for(BluetoothServiceDevice device in devices){
-              bluetoothService.startupDevice(device.deviceId).then((data) async{
-                HexValue value = await device.write("000062");
-              });
-            }
-
-          },child: new Text("Copnnect to all"),)
+          new RaisedButton(
+            onPressed: () async {
+              BluetoothService bluetoothService =
+                  BluetoothService.getInstance();
+              await bluetoothService.stopScan();
+              for (BluetoothServiceDevice device in devices) {
+                bluetoothService
+                    .startupDevice(device.deviceId)
+                    .then((data) async {
+                  HexValue value = await device.write("000062");
+                });
+              }
+            },
+            child: new Text("Copnnect to all"),
+          )
         ],
       ),
     );
@@ -153,6 +144,9 @@ class _DeviceListState extends State<DeviceList> {
           return new InnerDeviceItem(
             device: data,
             toggleConnect: (BluetoothServiceDevice device) async {
+              BluetoothService bluetoothService =
+                  BluetoothService.getInstance();
+
               try {
                 if (device.connected) {
                   print("start disconnect device");

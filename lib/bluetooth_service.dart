@@ -28,12 +28,14 @@ abstract class BleDeviceConfig extends DeviceConfig {
       this.writeId,
       bool checkServicesAndCharacteristics = false,
       bool enable = true,
+      String tag,
       Duration connectTimeout = const Duration(seconds: kConnectTimeout),
       Duration dataTimeout = const Duration(milliseconds: kDataTimeout),
       Duration connectRetryInterval =
           const Duration(milliseconds: kConnectRetryInterval),
       int connectRetryCount = kConnectRetryCount})
       : super(
+            tag: tag,
             checkServicesAndCharacteristics: checkServicesAndCharacteristics,
             connectTimeout: connectTimeout,
             dataTimeout: dataTimeout,
@@ -51,6 +53,9 @@ abstract class BleDeviceConfig extends DeviceConfig {
 abstract class DeviceConfig {
   ///
   final bool checkServicesAndCharacteristics;
+
+  // tag to id the device
+  final String tag;
 
   // time out of send data and receive data
   final Duration dataTimeout;
@@ -70,7 +75,8 @@ abstract class DeviceConfig {
       this.dataTimeout,
       this.connectRetryCount,
       this.connectRetryInterval,
-      this.enable});
+      this.enable,
+      this.tag});
 
   // is the device acceptable?
   bool accept(BleDevice device);
@@ -388,12 +394,46 @@ class BluetoothService {
   List<DeviceConfig> _configs;
   Map<String, BluetoothServiceDevice> _serviceDevices = {};
 
-  BluetoothService({
+  static BluetoothService _instance;
+
+  static BluetoothService getInstance() {
+    return _instance;
+  }
+
+  static BluetoothService createInstance(List<DeviceConfig> configs) {
+    _instance = new BluetoothService._(configs: configs);
+    return _instance;
+  }
+
+  BluetoothService._({
     List<DeviceConfig> configs,
   }) : this._configs = configs;
 
   void setConfigs(List<DeviceConfig> configs) {
     this._configs = configs;
+  }
+
+  Iterable<BluetoothServiceDevice> getDevices() {
+    return _serviceDevices.values;
+  }
+
+  Iterable<BluetoothServiceDevice> getConnectedDevices() {
+    return _serviceDevices.values
+        .where((BluetoothServiceDevice device) => device.connected);
+  }
+
+  // 通过配置的下标后者标志(tag)来控制是否启用
+  void setEnable({int index, bool enable: true, String tag}) {
+    if (index != null) {
+      if (index < 0 || index >= _configs.length) {
+        throw new AssertionError("index is not correct");
+      }
+      _configs[index].enable = enable;
+    } else if (tag != null) {
+      _configs.firstWhere((DeviceConfig config) => tag == config.tag);
+    } else {
+      throw new AssertionError("A index or tag must be given");
+    }
   }
 
   BluetoothServiceDevice createBleDevice(
@@ -403,11 +443,11 @@ class BluetoothService {
 
   Future startScan() async {
     await FlutterWechatBle.openBluetoothAdapter();
-    await FlutterWechatBle.startBluetoothDevicesDiscovery();
     FlutterWechatBle.onBluetoothDeviceFound(_onRowDeviceFound);
+    FlutterWechatBle.onBLEConnectionStateChange(_onBLEConnectionStateChange);
     FlutterWechatBle.onBLECharacteristicValueChange(
         _onBLECharacteristicValueChange);
-    FlutterWechatBle.onBLEConnectionStateChange(_onBLEConnectionStateChange);
+    await FlutterWechatBle.startBluetoothDevicesDiscovery();
   }
 
   void _onBLEConnectionStateChange(String deviceId, bool connected) {

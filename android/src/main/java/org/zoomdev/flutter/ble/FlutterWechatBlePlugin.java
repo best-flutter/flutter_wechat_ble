@@ -175,6 +175,9 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
         BluetoothAdapterResult ret = adapter.startScan();
         if (BluetoothAdapterResult.BluetoothAdapterResultOk == adapter.startScan()) {
             promise.success(new HashMap<String,Object>());
+
+            adapter.notifyDevices();
+
         } else {
             retToCallback(ret, promise);
         }

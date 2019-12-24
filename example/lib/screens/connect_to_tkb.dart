@@ -9,8 +9,6 @@ class ConnectToTkb extends StatefulWidget {
 
 class _ConnectToTkbState extends State<ConnectToTkb> {
   static DeviceConfig config = new TbkDeviceConfig();
-  static BluetoothService bluetoothService =
-      new BluetoothService(configs: [config]);
 
   List<String> messages = [];
 
@@ -25,6 +23,7 @@ class _ConnectToTkbState extends State<ConnectToTkb> {
     await setState(() {
       messages.add("searing devices...");
     });
+    BluetoothService bluetoothService = BluetoothService.getInstance();
     await bluetoothService.shutdown();
     bluetoothService.onServiceDeviceFound(onServiceDeviceFound);
     await bluetoothService.startScan();
@@ -36,6 +35,10 @@ class _ConnectToTkbState extends State<ConnectToTkb> {
       messages.add("startup devices with name TKB_BLE...${device.name}");
     });
     try {
+      BluetoothService bluetoothService = BluetoothService.getInstance();
+      bluetoothService.setEnable(index: 0,enable: true);
+      bluetoothService.setEnable(index: 1,enable: false);
+      bluetoothService.setEnable(index: 2,enable: false);
       await bluetoothService.stopScan();
       await bluetoothService.startupDevice(device.deviceId);
 
