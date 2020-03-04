@@ -11,26 +11,6 @@ const int kConnectRetryInterval = 500;
 const int kConnectRetryCount = 1;
 const int kMaxConnectRetryCount = 10;
 
-/// can connect to any device
-class AnyDeviceConfig extends DeviceConfig{
-  @override
-  bool accept(BleDevice device) {
-    return true;
-  }
-
-  @override
-  BluetoothServiceDevice createBleServiceDevice(BluetoothService service, BleDevice device, DeviceConfig config) {
-    return service.createBleDevice(device, config);
-  }
-
-  @override
-  HexValue onValueChange(BluetoothServiceBleDevice device, BleValue value) {
-    return new StringHexValue(value.value);
-  }
-
-}
-
-
 abstract class BleDeviceConfig extends DeviceConfig {
   //the default service id want to communicate
   final String serviceId;
@@ -68,12 +48,6 @@ abstract class BleDeviceConfig extends DeviceConfig {
       BluetoothService service, BleDevice device, DeviceConfig config) {
     return service.createBleDevice(device, config);
   }
-
-  // this function will be called when  not in ask and answer mode
-  void onExtraPack(BluetoothServiceBleDevice device, HexValue value) {}
-
-  /// handle the package logic
-  HexValue onValueChange(BluetoothServiceBleDevice device, BleValue value);
 }
 
 abstract class DeviceConfig {
@@ -106,6 +80,11 @@ abstract class DeviceConfig {
 
   // is the device acceptable?
   bool accept(BleDevice device);
+  // this function will be called when  not in ask and answer mode
+  void onExtraPack(BluetoothServiceBleDevice device, HexValue value) {}
+
+  /// handle the package logic
+  HexValue onValueChange(BluetoothServiceBleDevice device, BleValue value);
 
   // create the service device
   BluetoothServiceDevice createBleServiceDevice(
@@ -129,7 +108,7 @@ abstract class BluetoothServiceDevice {
 
   BluetoothServiceDevice({this.device, this.config, this.connected = false});
 
-
+  void onReceiveData(BleValue value);
 
   // connect tot the device and do other prepare work
   dynamic startup();
@@ -142,6 +121,8 @@ abstract class BluetoothServiceDevice {
   //
   Future<HexValue> write(var value);
 
+  //
+  Future writeWithoutReturnData(var value);
 }
 
 abstract class HexValue {
@@ -213,32 +194,6 @@ class DeviceBuffer {
   }
 }
 
-
-/// for classic device
-class BluetoothServiceClassicDevice extends BluetoothServiceDevice{
-  @override
-  Future close() {
-    // TODO: implement close
-    return null;
-  }
-
-
-
-  @override
-  startup() {
-    // TODO: implement startup
-    return null;
-  }
-
-  @override
-  Future<HexValue> write(value) {
-    // TODO: implement write
-    return null;
-  }
-
-
-}
-
 class BluetoothServiceBleDevice extends BluetoothServiceDevice {
   final DeviceBuffer _buffer = new DeviceBuffer();
 
@@ -277,11 +232,11 @@ class BluetoothServiceBleDevice extends BluetoothServiceDevice {
     _buffer.clear();
   }
 
-
+  @override
   void onReceiveData(BleValue value) async {
     try {
       print("receive data : ${value.value}");
-      HexValue result = await _config.onValueChange(this, value);
+      HexValue result = await config.onValueChange(this, value);
       if (result != null) {
         if (_completer != null) {
           //report the data
@@ -290,7 +245,7 @@ class BluetoothServiceBleDevice extends BluetoothServiceDevice {
           completer.complete(result);
         } else {
           //extra data
-          _config.onExtraPack(this, result);
+          config.onExtraPack(this, result);
         }
       }
     } catch (e) {
@@ -406,6 +361,7 @@ class BluetoothServiceBleDevice extends BluetoothServiceDevice {
     }
     _completer = new Completer<HexValue>();
     _timer = new Timer(_config.dataTimeout, _onDataTimeout);
+    _completer.future;
     writeValue(_config.serviceId, _config.writeId, value);
     return _completer.future;
   }
@@ -428,7 +384,7 @@ class BluetoothServiceBleDevice extends BluetoothServiceDevice {
     _timer = null;
   }
 
-
+  @override
   Future writeWithoutReturnData(value) {
     return writeValue(_config.serviceId, _config.writeId, value);
   }
@@ -531,7 +487,7 @@ class BluetoothService {
   }
 
   void _onBLECharacteristicValueChange(BleValue value) {
-    BluetoothServiceBleDevice device = getDeviceById(value.deviceId);
+    BluetoothServiceDevice device = getDeviceById(value.deviceId);
     if (device == null) {
       throw new AssertionError(
           "Cannot find device ${value.deviceId} when receiving data");

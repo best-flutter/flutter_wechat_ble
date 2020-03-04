@@ -69,6 +69,7 @@ class _DeviceListState extends State<DeviceList> {
   void initState() {
     //启动系统
     startup();
+
     super.initState();
   }
 

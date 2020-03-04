@@ -374,13 +374,7 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
                         @Override
                         public void run() {
                             if (success) {
-                                Map map = new HashMap();
-                                map.put("deviceId", device.getDeviceId());
-                                map.put("serviceId", Utils.getUuidOfService(characteristic.getService()));
-                                map.put("characteristicId", Utils.getUuidOfCharacteristic(characteristic));
-                                map.put("value", HexUtil.encodeHexStr(characteristic.getValue()));
-
-                                promise.success(map);
+                                promise.success(new HashMap<String,Object>());
                             } else {
                                 processError(SYSTEM_ERROR, "SetNotify value failed", promise);
                             }
