@@ -27,3 +27,7 @@ subprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+project.ext {
+    googlePlayServicesVersion = "15.0.0"
+}
