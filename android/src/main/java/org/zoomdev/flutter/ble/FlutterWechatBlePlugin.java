@@ -214,9 +214,7 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
                                 map.put("serviceId", Utils.getUuidOfService(characteristic.getService()));
                                 map.put("characteristicId", Utils.getUuidOfCharacteristic(characteristic));
                                 map.put("value", HexUtil.encodeHexStr(characteristic.getValue()));
-
-
-                                promise.success(new HashMap<String,Object>());
+                                promise.success(map);
                             } else {
                                 processError(SYSTEM_ERROR, "Read value failed", promise);
                             }
