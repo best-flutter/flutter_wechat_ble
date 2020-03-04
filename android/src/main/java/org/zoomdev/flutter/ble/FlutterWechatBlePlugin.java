@@ -202,11 +202,20 @@ public class FlutterWechatBlePlugin implements MethodCallHandler, BleListener, P
 
             adapter.readValue(deviceId, serviceId, characteristicId, new CharacteristicActionListener() {
                 @Override
-                public void onResult(DeviceAdapter deviceAdapter,BluetoothGattCharacteristic characteristic, final boolean success) {
+                public void onResult(final DeviceAdapter device,
+                                     final BluetoothGattCharacteristic characteristic,
+                                     final boolean success) {
                     runOnUIThread(new Runnable() {
                         @Override
                         public void run() {
                             if (success) {
+                                Map map = new HashMap();
+                                map.put("deviceId", device.getDeviceId());
+                                map.put("serviceId", Utils.getUuidOfService(characteristic.getService()));
+                                map.put("characteristicId", Utils.getUuidOfCharacteristic(characteristic));
+                                map.put("value", HexUtil.encodeHexStr(characteristic.getValue()));
+
+
                                 promise.success(new HashMap<String,Object>());
                             } else {
                                 processError(SYSTEM_ERROR, "Read value failed", promise);
